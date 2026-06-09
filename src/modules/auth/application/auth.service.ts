@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { AuthConfig } from '../../../core/config/auth.config';
+import { assertEmailAvailable } from '../domain/registration.rules';
 import { USER_REPOSITORY } from './ports/user.repository.port';
 import type { UserRepositoryPort } from './ports/user.repository.port';
 
@@ -36,11 +37,13 @@ export class AuthService {
     password: string,
   ): Promise<{ accessToken: string }> {
     const existingUser = await this.userRepository.findByEmail(email);
-    if (existingUser) {
+    try {
+      assertEmailAvailable(existingUser);
+    } catch {
       throw new ConflictException('Email is already registered');
     }
     const passwordHash = await this.hashPassword(password);
-    const user = await this.userRepository.create(email, passwordHash);
+    const user = await this.userRepository.save(email, passwordHash);
     return { accessToken: await this.signToken(user.id, user.email) };
   }
 
