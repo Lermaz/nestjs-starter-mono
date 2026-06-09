@@ -9,6 +9,7 @@ import { Public } from '../../../common/decorators/public.decorator';
 import { TodosService } from '../application/todos.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { TodoResponseDto } from './dto/todo-response.dto';
+import { toTodoResponseDto } from './mappers/todo-response.mapper';
 
 /**
  * HTTP controller for todo operations.
@@ -36,8 +37,12 @@ export class TodosController {
   @Post()
   @ApiOperation({ summary: 'Create a new todo' })
   @ApiResponse({ status: 201, type: TodoResponseDto })
-  createTodo(@Body() input: CreateTodoDto): Promise<TodoResponseDto> {
-    return this.todosService.createTodo(input);
+  async createTodo(@Body() input: CreateTodoDto): Promise<TodoResponseDto> {
+    const todo = await this.todosService.createTodo(
+      input.title,
+      input.isCompleted ?? false,
+    );
+    return toTodoResponseDto(todo);
   }
 
   /**
@@ -46,8 +51,9 @@ export class TodosController {
   @Get()
   @ApiOperation({ summary: 'List all todos' })
   @ApiResponse({ status: 200, type: TodoResponseDto, isArray: true })
-  findAllTodos(): Promise<TodoResponseDto[]> {
-    return this.todosService.findAllTodos();
+  async findAllTodos(): Promise<TodoResponseDto[]> {
+    const todos = await this.todosService.findAllTodos();
+    return todos.map((todo) => toTodoResponseDto(todo));
   }
 
   /**
@@ -56,7 +62,8 @@ export class TodosController {
   @Get(':id')
   @ApiOperation({ summary: 'Get a todo by id' })
   @ApiResponse({ status: 200, type: TodoResponseDto })
-  findTodoById(@Param('id') id: string): Promise<TodoResponseDto> {
-    return this.todosService.findTodoById(id);
+  async findTodoById(@Param('id') id: string): Promise<TodoResponseDto> {
+    const todo = await this.todosService.findTodoById(id);
+    return toTodoResponseDto(todo);
   }
 }

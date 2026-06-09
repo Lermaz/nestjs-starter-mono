@@ -11,7 +11,7 @@ describe('TodosPublicApi', () => {
 
   beforeEach(async () => {
     mockTodoRepository = {
-      create: jest.fn(),
+      save: jest.fn(),
       findAll: jest.fn(),
       findById: jest.fn(),
       count: jest.fn(),

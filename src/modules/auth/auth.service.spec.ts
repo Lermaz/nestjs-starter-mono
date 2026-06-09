@@ -9,7 +9,7 @@ jest.mock('bcrypt', () => ({
 }));
 
 import * as bcrypt from 'bcrypt';
-import { UserEntity } from './infrastructure/entities/user.entity';
+import { User } from './domain/user.model';
 import { AuthService } from './application/auth.service';
 import {
   USER_REPOSITORY,
@@ -21,7 +21,7 @@ describe('AuthService', () => {
   let mockUserRepository: jest.Mocked<UserRepositoryPort>;
   let mockJwtService: jest.Mocked<Pick<JwtService, 'signAsync'>>;
 
-  const inputUser: UserEntity = {
+  const inputUser: User = {
     id: 'user-1',
     email: 'user@example.com',
     passwordHash: 'hashed-password',
@@ -31,7 +31,7 @@ describe('AuthService', () => {
   beforeEach(async () => {
     mockUserRepository = {
       findByEmail: jest.fn(),
-      create: jest.fn(),
+      save: jest.fn(),
     };
     mockJwtService = {
       signAsync: jest.fn().mockResolvedValue('test-token'),
@@ -61,13 +61,13 @@ describe('AuthService', () => {
   describe('register', () => {
     it('should create a user and return access token', async () => {
       mockUserRepository.findByEmail.mockResolvedValue(null);
-      mockUserRepository.create.mockResolvedValue(inputUser);
+      mockUserRepository.save.mockResolvedValue(inputUser);
       const actualResult = await authService.register(
         'user@example.com',
         'password123',
       );
       expect(actualResult).toEqual({ accessToken: 'test-token' });
-      expect(mockUserRepository.create.mock.calls[0]?.[0]).toBe(
+      expect(mockUserRepository.save.mock.calls[0]?.[0]).toBe(
         'user@example.com',
       );
     });

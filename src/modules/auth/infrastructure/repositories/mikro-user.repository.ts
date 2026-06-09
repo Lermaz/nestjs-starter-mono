@@ -1,7 +1,9 @@
 import { EntityManager } from '@mikro-orm/core';
 import { Injectable } from '@nestjs/common';
+import { User } from '../../domain/user.model';
 import { UserRepositoryPort } from '../../application/ports/user.repository.port';
 import { UserEntity } from '../entities/user.entity';
+import { toDomainUser, toNewUserEntity } from '../mappers/user.mapper';
 
 /**
  * MikroORM implementation of the user repository port.
@@ -10,17 +12,20 @@ import { UserEntity } from '../entities/user.entity';
 export class MikroUserRepository implements UserRepositoryPort {
   constructor(private readonly entityManager: EntityManager) {}
 
-  async findByEmail(email: string): Promise<UserEntity | null> {
-    return this.entityManager.findOne(UserEntity, { email });
+  async findByEmail(email: string): Promise<User | null> {
+    const entity = await this.entityManager.findOne(UserEntity, { email });
+    if (!entity) {
+      return null;
+    }
+    return toDomainUser(entity);
   }
 
-  async create(email: string, passwordHash: string): Promise<UserEntity> {
-    const user = this.entityManager.create(UserEntity, {
-      email,
-      passwordHash,
-      createdAt: new Date(),
-    });
-    await this.entityManager.persist(user).flush();
-    return user;
+  async save(email: string, passwordHash: string): Promise<User> {
+    const entity = this.entityManager.create(
+      UserEntity,
+      toNewUserEntity(email, passwordHash),
+    );
+    await this.entityManager.persist(entity).flush();
+    return toDomainUser(entity);
   }
 }

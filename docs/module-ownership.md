@@ -17,6 +17,14 @@ One sentence per module — what it owns and what it does not own.
 - Feature modules never import another module's `infrastructure/` or `presentation/` layers.
 - Each entity file lives inside its owning feature module; entities are never shared across modules.
 
+## Domain layer conventions
+
+- `domain/` is pure TypeScript — no NestJS, no MikroORM, no HTTP DTOs.
+- Repository ports speak domain types (`Todo`, `User`); entity mapping lives in `infrastructure/mappers/`.
+- DTO mapping stays in `presentation/` (controllers and response mappers).
+- Application services orchestrate domain rules, ports, and integration events.
+- `use-cases/` splits are deferred until a service exceeds ~150 lines.
+
 ## Database entities
 
 MikroORM discovers entities via a global glob at boot (`./dist/**/*.entity.js`), but ownership is per feature module. `TodoEntity` belongs to TodosModule only — other modules must use `TodosPublicApi` (or future facades), never import `*.entity.ts` files directly.
