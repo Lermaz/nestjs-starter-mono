@@ -1,12 +1,12 @@
-import { TodoEntity } from '../../infrastructure/entities/todo.entity';
+import { Todo } from '../../domain/todo.model';
 
 /**
  * Contract for todo persistence operations.
  */
 export interface TodoRepositoryPort {
-  create(title: string, isCompleted?: boolean): Promise<TodoEntity>;
-  findAll(): Promise<TodoEntity[]>;
-  findById(id: string): Promise<TodoEntity | null>;
+  save(title: string, isCompleted: boolean): Promise<Todo>;
+  findAll(): Promise<Todo[]>;
+  findById(id: string): Promise<Todo | null>;
   count(): Promise<number>;
 }
 
