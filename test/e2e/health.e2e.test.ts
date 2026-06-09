@@ -3,10 +3,7 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
-import {
-  createTestApp,
-  type ReadinessResponseBody,
-} from './helpers/test-app';
+import { createTestApp, type ReadinessResponseBody } from './helpers/test-app';
 
 void describe('HealthController (e2e)', () => {
   let app: INestApplication<App>;
