@@ -15,6 +15,8 @@
 
 ## Phase 3 — Cross-cutting platform
 
+> Auth, Swagger, throttling, structured logging, and Docker: see [module-ownership.md](./module-ownership.md) and README Docker section.
+
 | # | Priority | What | Why |
 |---|----------|------|-----|
 | 18 | P1 | Auth module: guard + `@Public()` + JWT/session strategy | Almost every API needs it |
