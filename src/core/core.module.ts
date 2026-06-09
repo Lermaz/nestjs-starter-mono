@@ -4,6 +4,8 @@ import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { HttpExceptionFilter } from '../common/filters/http-exception.filter';
 import { LoggingInterceptor } from '../common/interceptors/logging.interceptor';
 import { appConfig } from './config/app.config';
+import { databaseConfig } from './config/database.config';
+import { DatabaseModule } from './database/database.module';
 
 /**
  * Core module that registers global configuration and cross-cutting providers.
@@ -12,8 +14,9 @@ import { appConfig } from './config/app.config';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [appConfig],
+      load: [appConfig, databaseConfig],
     }),
+    DatabaseModule,
   ],
   providers: [
     {
