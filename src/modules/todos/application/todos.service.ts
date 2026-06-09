@@ -1,7 +1,12 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CreateTodoDto } from '../presentation/dto/create-todo.dto';
 import { TodoResponseDto } from '../presentation/dto/todo-response.dto';
 import { TodoEntity } from '../infrastructure/entities/todo.entity';
+import {
+  TODO_CREATED_EVENT,
+  TodoCreatedEvent,
+} from './events/todo-created.event';
 import { TODO_REPOSITORY } from './ports/todo.repository.port';
 import type { TodoRepositoryPort } from './ports/todo.repository.port';
 
@@ -13,6 +18,7 @@ export class TodosService {
   constructor(
     @Inject(TODO_REPOSITORY)
     private readonly todoRepository: TodoRepositoryPort,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   /**
@@ -22,6 +28,10 @@ export class TodosService {
     const todo = await this.todoRepository.create(
       input.title,
       input.isCompleted ?? false,
+    );
+    this.eventEmitter.emit(
+      TODO_CREATED_EVENT,
+      new TodoCreatedEvent(todo.id, todo.title),
     );
     return this.mapToResponse(todo);
   }

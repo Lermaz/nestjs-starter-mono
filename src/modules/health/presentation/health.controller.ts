@@ -23,4 +23,12 @@ export class HealthController {
   getTest(): { status: string } {
     return this.healthService.getTestResponse();
   }
+
+  /**
+   * Readiness endpoint that verifies database connectivity.
+   */
+  @Get('health/ready')
+  getReadiness(): Promise<{ status: string; todosCount: number }> {
+    return this.healthService.getReadiness();
+  }
 }

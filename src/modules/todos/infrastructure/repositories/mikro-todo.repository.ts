@@ -31,4 +31,8 @@ export class MikroTodoRepository implements TodoRepositoryPort {
   async findById(id: string): Promise<TodoEntity | null> {
     return this.entityManager.findOne(TodoEntity, { id });
   }
+
+  async count(): Promise<number> {
+    return this.entityManager.count(TodoEntity, {});
+  }
 }
