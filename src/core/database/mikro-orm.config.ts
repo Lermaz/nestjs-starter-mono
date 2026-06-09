@@ -4,6 +4,10 @@ const DEFAULT_DATABASE_URL = 'sqlite://./data/app.db';
 
 /**
  * Builds MikroORM options from a database connection URL.
+ *
+ * Entities are discovered globally for MikroORM boot, but each entity file
+ * must live inside its owning feature module; never import entities across
+ * module boundaries.
  */
 export function buildMikroOrmOptions(databaseUrl: string): Options {
   const dbName = resolveSqlitePath(databaseUrl);

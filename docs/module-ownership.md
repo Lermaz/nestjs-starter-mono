@@ -16,4 +16,8 @@ One sentence per module — what it owns and what it does not own.
 - Feature modules never import another module's `infrastructure/` or `presentation/` layers.
 - Each entity file lives inside its owning feature module; entities are never shared across modules.
 
+## Database entities
+
+MikroORM discovers entities via a global glob at boot (`./dist/**/*.entity.js`), but ownership is per feature module. `TodoEntity` belongs to TodosModule only — other modules must use `TodosPublicApi` (or future facades), never import `*.entity.ts` files directly.
+
 See [modular-nestjs-roadmap.md](./modular-nestjs-roadmap.md) for the full architecture roadmap.
