@@ -9,7 +9,6 @@ export class DatabaseSchemaService implements OnModuleInit {
   constructor(private readonly orm: MikroORM) {}
 
   async onModuleInit(): Promise<void> {
-    const generator = this.orm.getSchemaGenerator();
-    await generator.updateSchema();
+    await this.orm.schema.update();
   }
 }

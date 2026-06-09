@@ -1,4 +1,4 @@
-import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
+import { Entity, PrimaryKey, Property } from '@mikro-orm/decorators/legacy';
 import { randomUUID } from 'node:crypto';
 
 /**
@@ -9,12 +9,12 @@ export class TodoEntity {
   @PrimaryKey({ type: 'uuid' })
   id: string = randomUUID();
 
-  @Property({ length: 255 })
+  @Property({ type: 'string', length: 255 })
   title!: string;
 
-  @Property()
+  @Property({ type: 'boolean' })
   isCompleted: boolean = false;
 
-  @Property()
+  @Property({ type: 'date' })
   createdAt: Date = new Date();
 }

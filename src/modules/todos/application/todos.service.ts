@@ -2,10 +2,8 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTodoDto } from '../presentation/dto/create-todo.dto';
 import { TodoResponseDto } from '../presentation/dto/todo-response.dto';
 import { TodoEntity } from '../infrastructure/entities/todo.entity';
-import {
-  TODO_REPOSITORY,
-  TodoRepositoryPort,
-} from './ports/todo.repository.port';
+import { TODO_REPOSITORY } from './ports/todo.repository.port';
+import type { TodoRepositoryPort } from './ports/todo.repository.port';
 
 /**
  * Application service for todo business operations.

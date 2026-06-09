@@ -11,15 +11,21 @@ export class MikroTodoRepository implements TodoRepositoryPort {
   constructor(private readonly entityManager: EntityManager) {}
 
   async create(title: string, isCompleted = false): Promise<TodoEntity> {
-    const todo = new TodoEntity();
-    todo.title = title;
-    todo.isCompleted = isCompleted;
+    const todo = this.entityManager.create(TodoEntity, {
+      title,
+      isCompleted,
+      createdAt: new Date(),
+    });
     await this.entityManager.persist(todo).flush();
     return todo;
   }
 
   async findAll(): Promise<TodoEntity[]> {
-    return this.entityManager.find(TodoEntity, {}, { orderBy: { createdAt: 'desc' } });
+    return this.entityManager.find(
+      TodoEntity,
+      {},
+      { orderBy: { createdAt: 'desc' } },
+    );
   }
 
   async findById(id: string): Promise<TodoEntity | null> {

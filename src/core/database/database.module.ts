@@ -1,6 +1,7 @@
+import { MikroOrmModule } from '@mikro-orm/nestjs';
+import { SqliteDriver } from '@mikro-orm/sqlite';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { DatabaseConfig } from '../config/database.config';
 import { buildMikroOrmOptions } from './mikro-orm.config';
 import { DatabaseSchemaService } from './database-schema.service';
@@ -18,7 +19,10 @@ import { DatabaseSchemaService } from './database-schema.service';
           'database.url',
           'sqlite://./data/app.db',
         );
-        return buildMikroOrmOptions(databaseUrl);
+        return {
+          ...buildMikroOrmOptions(databaseUrl),
+          driver: SqliteDriver,
+        };
       },
     }),
   ],
