@@ -42,6 +42,8 @@
 
 ## Phase 5 — Guardrails (before team grows or module count > ~5)
 
+> Architecture checks: `pnpm run arch:check` — module public APIs: [module-ownership.md](./module-ownership.md#module-public-api-docs)
+
 | # | Priority | What | Why |
 |---|----------|------|-----|
 | 29 | P1 | dependency-cruiser rules in CI | Enforces boundaries automatically |
