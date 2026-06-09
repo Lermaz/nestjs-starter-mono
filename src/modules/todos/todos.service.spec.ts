@@ -23,6 +23,7 @@ describe('TodosService', () => {
       create: jest.fn(),
       findAll: jest.fn(),
       findById: jest.fn(),
+      count: jest.fn(),
     };
     const app: TestingModule = await Test.createTestingModule({
       providers: [

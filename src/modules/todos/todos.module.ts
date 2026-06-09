@@ -4,6 +4,7 @@ import { TODO_REPOSITORY } from './application/ports/todo.repository.port';
 import { TodosService } from './application/todos.service';
 import { TodoEntity } from './infrastructure/entities/todo.entity';
 import { MikroTodoRepository } from './infrastructure/repositories/mikro-todo.repository';
+import { TodosPublicApi } from './public/todos-public.api';
 import { TodosController } from './presentation/todos.controller';
 
 /**
@@ -14,10 +15,12 @@ import { TodosController } from './presentation/todos.controller';
   controllers: [TodosController],
   providers: [
     TodosService,
+    TodosPublicApi,
     {
       provide: TODO_REPOSITORY,
       useClass: MikroTodoRepository,
     },
   ],
+  exports: [TodosPublicApi],
 })
 export class TodosModule {}
