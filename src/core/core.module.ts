@@ -6,6 +6,7 @@ import { CommonModule } from '../common/common.module';
 import { HttpExceptionFilter } from '../common/filters/http-exception.filter';
 import { LoggingInterceptor } from '../common/interceptors/logging.interceptor';
 import { appConfig } from './config/app.config';
+import { authConfig } from './config/auth.config';
 import { databaseConfig } from './config/database.config';
 import { DatabaseModule } from './database/database.module';
 
@@ -16,7 +17,7 @@ import { DatabaseModule } from './database/database.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [appConfig, databaseConfig],
+      load: [appConfig, authConfig, databaseConfig],
     }),
     EventEmitterModule.forRoot(),
     DatabaseModule,
