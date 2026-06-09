@@ -1,15 +1,18 @@
 import { NotFoundException } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
 import { TodoEntity } from './infrastructure/entities/todo.entity';
 import {
   TODO_REPOSITORY,
   TodoRepositoryPort,
 } from './application/ports/todo.repository.port';
+import { TODO_CREATED_EVENT } from './application/events/todo-created.event';
 import { TodosService } from './application/todos.service';
 
 describe('TodosService', () => {
   let todosService: TodosService;
   let mockTodoRepository: jest.Mocked<TodoRepositoryPort>;
+  let mockEventEmitter: jest.Mocked<Pick<EventEmitter2, 'emit'>>;
 
   const inputTodo: TodoEntity = {
     id: 'todo-1',
@@ -25,12 +28,19 @@ describe('TodosService', () => {
       findById: jest.fn(),
       count: jest.fn(),
     };
+    mockEventEmitter = {
+      emit: jest.fn(),
+    };
     const app: TestingModule = await Test.createTestingModule({
       providers: [
         TodosService,
         {
           provide: TODO_REPOSITORY,
           useValue: mockTodoRepository,
+        },
+        {
+          provide: EventEmitter2,
+          useValue: mockEventEmitter,
         },
       ],
     }).compile();
@@ -53,6 +63,10 @@ describe('TodosService', () => {
         isCompleted: inputTodo.isCompleted,
         createdAt: inputTodo.createdAt,
       });
+      expect(mockEventEmitter.emit).toHaveBeenCalledWith(
+        TODO_CREATED_EVENT,
+        expect.objectContaining({ id: inputTodo.id, title: inputTodo.title }),
+      );
     });
   });
 
