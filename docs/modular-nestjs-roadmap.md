@@ -28,6 +28,8 @@
 
 ## Phase 4 — DDD layers (only where complexity warrants)
 
+> Domain conventions: [module-ownership.md](./module-ownership.md#domain-layer-conventions)
+
 | # | Priority | What | When |
 |---|----------|------|------|
 | 24 | P2 | `domain/` folder — pure TS, no Nest/ORM imports | Payments, orders, inventory, auth rules |
