@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Public } from '../../../common/decorators/public.decorator';
 import { TodosService } from '../application/todos.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { TodoResponseDto } from './dto/todo-response.dto';
@@ -13,6 +14,7 @@ export class TodosController {
   /**
    * Smoke test endpoint for todos module verification.
    */
+  @Public()
   @Get('admin/test')
   getTest(): { status: string } {
     return this.todosService.getTestResponse();
