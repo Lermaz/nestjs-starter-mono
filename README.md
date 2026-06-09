@@ -25,6 +25,11 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+## Architecture
+
+- [Modular NestJS roadmap](docs/modular-nestjs-roadmap.md)
+- [Module ownership](docs/module-ownership.md)
+
 ## Project setup
 
 ```bash
