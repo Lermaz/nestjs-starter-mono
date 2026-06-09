@@ -1,8 +1,7 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { CreateTodoDto } from '../presentation/dto/create-todo.dto';
-import { TodoResponseDto } from '../presentation/dto/todo-response.dto';
-import { TodoEntity } from '../infrastructure/entities/todo.entity';
+import { createTodoProps } from '../domain/todo.factory';
+import { Todo } from '../domain/todo.model';
 import {
   TODO_CREATED_EVENT,
   TodoCreatedEvent,
@@ -24,35 +23,32 @@ export class TodosService {
   /**
    * Creates a new todo from the given input.
    */
-  async createTodo(input: CreateTodoDto): Promise<TodoResponseDto> {
-    const todo = await this.todoRepository.create(
-      input.title,
-      input.isCompleted ?? false,
-    );
+  async createTodo(title: string, isCompleted = false): Promise<Todo> {
+    const props = createTodoProps(title, isCompleted);
+    const todo = await this.todoRepository.save(props.title, props.isCompleted);
     this.eventEmitter.emit(
       TODO_CREATED_EVENT,
       new TodoCreatedEvent(todo.id, todo.title),
     );
-    return this.mapToResponse(todo);
+    return todo;
   }
 
   /**
    * Returns all todos.
    */
-  async findAllTodos(): Promise<TodoResponseDto[]> {
-    const todos = await this.todoRepository.findAll();
-    return todos.map((todo) => this.mapToResponse(todo));
+  async findAllTodos(): Promise<Todo[]> {
+    return this.todoRepository.findAll();
   }
 
   /**
    * Returns a single todo by id.
    */
-  async findTodoById(id: string): Promise<TodoResponseDto> {
+  async findTodoById(id: string): Promise<Todo> {
     const todo = await this.todoRepository.findById(id);
     if (!todo) {
       throw new NotFoundException(`Todo with id "${id}" not found`);
     }
-    return this.mapToResponse(todo);
+    return todo;
   }
 
   /**
@@ -60,14 +56,5 @@ export class TodosService {
    */
   getTestResponse(): { status: string } {
     return { status: 'ok' };
-  }
-
-  private mapToResponse(todo: TodoEntity): TodoResponseDto {
-    return {
-      id: todo.id,
-      title: todo.title,
-      isCompleted: todo.isCompleted,
-      createdAt: todo.createdAt,
-    };
   }
 }
