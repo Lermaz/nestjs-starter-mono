@@ -1,4 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Public } from '../../../common/decorators/public.decorator';
 import { HealthService } from '../application/health.service';
 
@@ -6,6 +7,7 @@ import { HealthService } from '../application/health.service';
  * Controller for health check endpoints.
  */
 @Public()
+@ApiTags('health')
 @Controller()
 export class HealthController {
   constructor(private readonly healthService: HealthService) {}
@@ -14,6 +16,8 @@ export class HealthController {
    * Root health endpoint.
    */
   @Get()
+  @ApiOperation({ summary: 'Root health check' })
+  @ApiResponse({ status: 200, description: 'Hello World response' })
   getHello(): string {
     return this.healthService.getHello();
   }
@@ -22,6 +26,8 @@ export class HealthController {
    * Smoke test endpoint for health module verification.
    */
   @Get('health/test')
+  @ApiOperation({ summary: 'Health module smoke test' })
+  @ApiResponse({ status: 200, description: 'OK status' })
   getTest(): { status: string } {
     return this.healthService.getTestResponse();
   }
@@ -30,6 +36,8 @@ export class HealthController {
    * Readiness endpoint that verifies database connectivity.
    */
   @Get('health/ready')
+  @ApiOperation({ summary: 'Readiness check with database connectivity' })
+  @ApiResponse({ status: 200, description: 'Readiness status with todos count' })
   getReadiness(): Promise<{ status: string; todosCount: number }> {
     return this.healthService.getReadiness();
   }
