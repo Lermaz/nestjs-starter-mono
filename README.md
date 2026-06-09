@@ -30,6 +30,19 @@
 - [Modular NestJS roadmap](docs/modular-nestjs-roadmap.md)
 - [Module ownership](docs/module-ownership.md)
 
+## Docker
+
+```bash
+# Build and run with Docker
+docker build -t nestjs-starter-mono .
+docker run -p 3000:3000 -e JWT_SECRET=your-secret nestjs-starter-mono
+
+# Or use docker-compose (persists SQLite in ./data)
+docker compose up --build
+```
+
+API docs available at `http://localhost:3000/docs` when running.
+
 ## Project setup
 
 ```bash
