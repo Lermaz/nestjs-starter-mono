@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { Todo } from './domain/todo.model';
 import { TodosService } from './application/todos.service';
 import { TodosController } from './presentation/todos.controller';
 
@@ -11,7 +12,7 @@ describe('TodosController', () => {
     >
   >;
 
-  const expectedTodo = {
+  const expectedTodo: Todo = {
     id: 'todo-1',
     title: 'Test todo',
     isCompleted: false,
@@ -45,20 +46,21 @@ describe('TodosController', () => {
   });
 
   describe('createTodo', () => {
-    it('should delegate to service', async () => {
+    it('should delegate to service and map response', async () => {
       mockTodosService.createTodo.mockResolvedValue(expectedTodo);
       const actualResult = await todosController.createTodo({
         title: 'Test todo',
       });
-      expect(mockTodosService.createTodo).toHaveBeenCalledWith({
-        title: 'Test todo',
-      });
+      expect(mockTodosService.createTodo).toHaveBeenCalledWith(
+        'Test todo',
+        false,
+      );
       expect(actualResult).toEqual(expectedTodo);
     });
   });
 
   describe('findAllTodos', () => {
-    it('should delegate to service', async () => {
+    it('should delegate to service and map responses', async () => {
       mockTodosService.findAllTodos.mockResolvedValue([expectedTodo]);
       const actualResult = await todosController.findAllTodos();
       expect(actualResult).toEqual([expectedTodo]);
@@ -66,7 +68,7 @@ describe('TodosController', () => {
   });
 
   describe('findTodoById', () => {
-    it('should delegate to service', async () => {
+    it('should delegate to service and map response', async () => {
       mockTodosService.findTodoById.mockResolvedValue(expectedTodo);
       const actualResult = await todosController.findTodoById('todo-1');
       expect(actualResult).toEqual(expectedTodo);

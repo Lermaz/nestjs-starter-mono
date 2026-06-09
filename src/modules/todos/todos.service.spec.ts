@@ -1,7 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
-import { TodoEntity } from './infrastructure/entities/todo.entity';
+import { Todo } from './domain/todo.model';
 import {
   TODO_REPOSITORY,
   TodoRepositoryPort,
@@ -14,7 +14,7 @@ describe('TodosService', () => {
   let mockTodoRepository: jest.Mocked<TodoRepositoryPort>;
   let mockEventEmitter: jest.Mocked<Pick<EventEmitter2, 'emit'>>;
 
-  const inputTodo: TodoEntity = {
+  const inputTodo: Todo = {
     id: 'todo-1',
     title: 'Test todo',
     isCompleted: false,
@@ -23,7 +23,7 @@ describe('TodosService', () => {
 
   beforeEach(async () => {
     mockTodoRepository = {
-      create: jest.fn(),
+      save: jest.fn(),
       findAll: jest.fn(),
       findById: jest.fn(),
       count: jest.fn(),
@@ -48,21 +48,14 @@ describe('TodosService', () => {
   });
 
   describe('createTodo', () => {
-    it('should create and map a todo', async () => {
-      mockTodoRepository.create.mockResolvedValue(inputTodo);
-      const actualResult = await todosService.createTodo({
-        title: 'Test todo',
-      });
-      expect(mockTodoRepository.create.mock.calls[0]).toEqual([
+    it('should create a todo and emit integration event', async () => {
+      mockTodoRepository.save.mockResolvedValue(inputTodo);
+      const actualResult = await todosService.createTodo('Test todo');
+      expect(mockTodoRepository.save.mock.calls[0]).toEqual([
         'Test todo',
         false,
       ]);
-      expect(actualResult).toEqual({
-        id: inputTodo.id,
-        title: inputTodo.title,
-        isCompleted: inputTodo.isCompleted,
-        createdAt: inputTodo.createdAt,
-      });
+      expect(actualResult).toEqual(inputTodo);
       expect(mockEventEmitter.emit).toHaveBeenCalledWith(
         TODO_CREATED_EVENT,
         expect.objectContaining({ id: inputTodo.id, title: inputTodo.title }),
@@ -71,7 +64,7 @@ describe('TodosService', () => {
   });
 
   describe('findAllTodos', () => {
-    it('should return mapped todos', async () => {
+    it('should return todos from repository', async () => {
       mockTodoRepository.findAll.mockResolvedValue([inputTodo]);
       const actualResult = await todosService.findAllTodos();
       expect(actualResult).toHaveLength(1);
@@ -80,7 +73,7 @@ describe('TodosService', () => {
   });
 
   describe('findTodoById', () => {
-    it('should return a mapped todo when found', async () => {
+    it('should return a todo when found', async () => {
       mockTodoRepository.findById.mockResolvedValue(inputTodo);
       const actualResult = await todosService.findTodoById('todo-1');
       expect(actualResult.id).toBe('todo-1');
