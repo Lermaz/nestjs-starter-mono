@@ -34,7 +34,9 @@ import { JwtStrategy } from './strategies/jwt.strategy';
         );
         return {
           secret: jwtSecret,
-          signOptions: { expiresIn: jwtExpiresIn },
+          signOptions: {
+            expiresIn: jwtExpiresIn as `${number}${'s' | 'm' | 'h' | 'd'}`,
+          },
         };
       },
     }),

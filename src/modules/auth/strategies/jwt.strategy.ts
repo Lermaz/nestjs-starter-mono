@@ -3,10 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { AuthConfig } from '../../../core/config/auth.config';
-import {
-  AuthService,
-  AuthTokenPayload,
-} from '../application/auth.service';
+import { AuthService, AuthTokenPayload } from '../application/auth.service';
 
 /**
  * Passport strategy for validating JWT access tokens.

@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { Observable, tap } from 'rxjs';
+import { AuthTokenPayload } from '../../modules/auth/application/auth.service';
 
 interface StructuredLogEntry {
   readonly requestId?: string;
@@ -33,9 +34,10 @@ export class LoggingInterceptor implements NestInterceptor {
     return next.handle().pipe(
       tap(() => {
         const durationMs = Date.now() - startedAt;
+        const authenticatedUser = request.user as AuthTokenPayload | undefined;
         const logEntry: StructuredLogEntry = {
           requestId: request.requestId,
-          userId: request.user?.userId,
+          userId: authenticatedUser?.userId,
           method,
           url,
           statusCode: response.statusCode,

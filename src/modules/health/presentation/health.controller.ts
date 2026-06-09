@@ -37,7 +37,10 @@ export class HealthController {
    */
   @Get('health/ready')
   @ApiOperation({ summary: 'Readiness check with database connectivity' })
-  @ApiResponse({ status: 200, description: 'Readiness status with todos count' })
+  @ApiResponse({
+    status: 200,
+    description: 'Readiness status with todos count',
+  })
   getReadiness(): Promise<{ status: string; todosCount: number }> {
     return this.healthService.getReadiness();
   }

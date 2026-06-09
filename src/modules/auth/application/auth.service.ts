@@ -31,7 +31,10 @@ export class AuthService {
   /**
    * Registers a new user with the given credentials.
    */
-  async register(email: string, password: string): Promise<{ accessToken: string }> {
+  async register(
+    email: string,
+    password: string,
+  ): Promise<{ accessToken: string }> {
     const existingUser = await this.userRepository.findByEmail(email);
     if (existingUser) {
       throw new ConflictException('Email is already registered');
@@ -44,7 +47,10 @@ export class AuthService {
   /**
    * Authenticates a user and returns a JWT access token.
    */
-  async login(email: string, password: string): Promise<{ accessToken: string }> {
+  async login(
+    email: string,
+    password: string,
+  ): Promise<{ accessToken: string }> {
     const user = await this.userRepository.findByEmail(email);
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');

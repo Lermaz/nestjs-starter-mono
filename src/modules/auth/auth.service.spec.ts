@@ -2,6 +2,12 @@ import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
+
+jest.mock('bcrypt', () => ({
+  hash: jest.fn().mockResolvedValue('hashed-password'),
+  compare: jest.fn(),
+}));
+
 import * as bcrypt from 'bcrypt';
 import { UserEntity } from './infrastructure/entities/user.entity';
 import { AuthService } from './application/auth.service';
@@ -77,7 +83,7 @@ describe('AuthService', () => {
   describe('login', () => {
     it('should return access token for valid credentials', async () => {
       mockUserRepository.findByEmail.mockResolvedValue(inputUser);
-      jest.spyOn(bcrypt, 'compare').mockResolvedValue(true as never);
+      jest.mocked(bcrypt.compare).mockResolvedValue(true as never);
       const actualResult = await authService.login(
         'user@example.com',
         'password123',
@@ -94,7 +100,7 @@ describe('AuthService', () => {
 
     it('should throw UnauthorizedException for invalid password', async () => {
       mockUserRepository.findByEmail.mockResolvedValue(inputUser);
-      jest.spyOn(bcrypt, 'compare').mockResolvedValue(false as never);
+      jest.mocked(bcrypt.compare).mockResolvedValue(false as never);
       await expect(
         authService.login('user@example.com', 'wrong-password'),
       ).rejects.toThrow(UnauthorizedException);
