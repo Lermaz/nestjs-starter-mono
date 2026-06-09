@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { CommonModule } from '../common/common.module';
 import { HttpExceptionFilter } from '../common/filters/http-exception.filter';
 import { LoggingInterceptor } from '../common/interceptors/logging.interceptor';
@@ -20,6 +21,12 @@ import { DatabaseModule } from './database/database.module';
       load: [appConfig, authConfig, databaseConfig],
     }),
     EventEmitterModule.forRoot(),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60_000,
+        limit: 100,
+      },
+    ]),
     DatabaseModule,
     CommonModule,
   ],
@@ -31,6 +38,10 @@ import { DatabaseModule } from './database/database.module';
     {
       provide: APP_INTERCEPTOR,
       useExisting: LoggingInterceptor,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
   ],
 })
