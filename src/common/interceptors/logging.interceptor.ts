@@ -7,9 +7,19 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { Observable, tap } from 'rxjs';
+import { AuthTokenPayload } from '../../modules/auth/application/auth.service';
+
+interface StructuredLogEntry {
+  readonly requestId?: string;
+  readonly userId?: string;
+  readonly method: string;
+  readonly url: string;
+  readonly statusCode: number;
+  readonly durationMs: number;
+}
 
 /**
- * Logs incoming HTTP requests with method, URL, status code, and duration.
+ * Logs incoming HTTP requests as structured JSON with request and user IDs.
  */
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
@@ -24,9 +34,16 @@ export class LoggingInterceptor implements NestInterceptor {
     return next.handle().pipe(
       tap(() => {
         const durationMs = Date.now() - startedAt;
-        this.logger.log(
-          `${method} ${url} ${response.statusCode} - ${durationMs}ms`,
-        );
+        const authenticatedUser = request.user as AuthTokenPayload | undefined;
+        const logEntry: StructuredLogEntry = {
+          requestId: request.requestId,
+          userId: authenticatedUser?.userId,
+          method,
+          url,
+          statusCode: response.statusCode,
+          durationMs,
+        };
+        this.logger.log(JSON.stringify(logEntry));
       }),
     );
   }
