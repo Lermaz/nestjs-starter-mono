@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { DatabaseConfig } from '../config/database.config';
 import { buildMikroOrmOptions } from './mikro-orm.config';
+import { DatabaseSchemaService } from './database-schema.service';
 
 /**
  * Database module that configures the MikroORM connection.
@@ -21,5 +22,6 @@ import { buildMikroOrmOptions } from './mikro-orm.config';
       },
     }),
   ],
+  providers: [DatabaseSchemaService],
 })
 export class DatabaseModule {}
