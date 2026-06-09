@@ -58,6 +58,13 @@ void describe('HealthController (e2e)', () => {
     assert.strictEqual(response.status, 200);
     assert.deepStrictEqual(response.body, { status: 'ok' });
   });
+
+  void it('GET /health/ready returns ok with todos count', async () => {
+    const response = await request(app.getHttpServer()).get('/health/ready');
+    assert.strictEqual(response.status, 200);
+    assert.strictEqual(response.body.status, 'ok');
+    assert.strictEqual(typeof response.body.todosCount, 'number');
+  });
 });
 
 void describe('TodosController (e2e)', () => {
