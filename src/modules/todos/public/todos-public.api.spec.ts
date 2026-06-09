@@ -33,7 +33,7 @@ describe('TodosPublicApi', () => {
       mockTodoRepository.count.mockResolvedValue(3);
       const actualCount = await todosPublicApi.countTodos();
       expect(actualCount).toBe(3);
-      expect(mockTodoRepository.count).toHaveBeenCalled();
+      expect(mockTodoRepository.count.mock.calls).toHaveLength(1);
     });
   });
 });

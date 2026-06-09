@@ -13,6 +13,11 @@ interface TodoResponseBody {
   readonly createdAt: string;
 }
 
+interface ReadinessResponseBody {
+  readonly status: string;
+  readonly todosCount: number;
+}
+
 const nodeRequire = createRequire(__filename);
 
 async function createTestApp(): Promise<INestApplication<App>> {
@@ -62,8 +67,9 @@ void describe('HealthController (e2e)', () => {
   void it('GET /health/ready returns ok with todos count', async () => {
     const response = await request(app.getHttpServer()).get('/health/ready');
     assert.strictEqual(response.status, 200);
-    assert.strictEqual(response.body.status, 'ok');
-    assert.strictEqual(typeof response.body.todosCount, 'number');
+    const readiness = response.body as ReadinessResponseBody;
+    assert.strictEqual(readiness.status, 'ok');
+    assert.strictEqual(typeof readiness.todosCount, 'number');
   });
 });
 
