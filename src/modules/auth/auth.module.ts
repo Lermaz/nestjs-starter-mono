@@ -8,9 +8,9 @@ import { AuthService } from './application/auth.service';
 import { USER_REPOSITORY } from './application/ports/user.repository.port';
 import { UserEntity } from './infrastructure/entities/user.entity';
 import { MikroUserRepository } from './infrastructure/repositories/mikro-user.repository';
+import { JwtStrategy } from './infrastructure/auth/jwt.strategy';
 import { AuthPublicApi } from './public/auth-public.api';
 import { AuthController } from './presentation/auth.controller';
-import { JwtStrategy } from './strategies/jwt.strategy';
 
 /**
  * Authentication module for user persistence and JWT issuance.
@@ -50,6 +50,6 @@ import { JwtStrategy } from './strategies/jwt.strategy';
       useClass: MikroUserRepository,
     },
   ],
-  exports: [AuthPublicApi, JwtModule],
+  exports: [AuthPublicApi],
 })
 export class AuthModule {}
