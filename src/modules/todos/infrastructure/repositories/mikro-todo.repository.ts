@@ -1,6 +1,6 @@
 import { EntityManager } from '@mikro-orm/core';
 import { Injectable } from '@nestjs/common';
-import { Todo } from '../../domain/todo.model';
+import { SaveTodoCommand, Todo } from '../../domain/todo.model';
 import { TodoRepositoryPort } from '../../application/ports/todo.repository.port';
 import { TodoEntity } from '../entities/todo.entity';
 import { toDomainTodo, toNewTodoEntity } from '../mappers/todo.mapper';
@@ -12,14 +12,10 @@ import { toDomainTodo, toNewTodoEntity } from '../mappers/todo.mapper';
 export class MikroTodoRepository implements TodoRepositoryPort {
   constructor(private readonly entityManager: EntityManager) {}
 
-  async save(
-    userId: string,
-    title: string,
-    isCompleted: boolean,
-  ): Promise<Todo> {
+  async save(command: SaveTodoCommand): Promise<Todo> {
     const entity = this.entityManager.create(
       TodoEntity,
-      toNewTodoEntity(userId, title, isCompleted),
+      toNewTodoEntity(command.userId, command.props),
     );
     await this.entityManager.persist(entity).flush();
     return toDomainTodo(entity);

@@ -15,3 +15,11 @@ export interface CreateTodoProps {
   readonly title: string;
   readonly isCompleted: boolean;
 }
+
+/**
+ * Command for persisting a new todo for a user.
+ */
+export interface SaveTodoCommand {
+  readonly userId: string;
+  readonly props: CreateTodoProps;
+}
