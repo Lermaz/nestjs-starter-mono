@@ -64,13 +64,16 @@ describe('AuthService', () => {
       mockUserRepository.findByEmail.mockResolvedValue(null);
       mockUserRepository.save.mockResolvedValue(inputUser);
       const actualResult = await authService.register(
-        'user@example.com',
+        '  User@Example.COM  ',
         'password123',
       );
       expect(actualResult.ok).toBe(true);
       if (actualResult.ok) {
         expect(actualResult.value).toEqual({ accessToken: 'test-token' });
       }
+      expect(mockUserRepository.findByEmail).toHaveBeenCalledWith(
+        'user@example.com',
+      );
       expect(mockUserRepository.save.mock.calls[0]?.[0]).toEqual({
         email: 'user@example.com',
         passwordHash: 'hashed-password',
