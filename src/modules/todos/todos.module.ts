@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { TODO_REPOSITORY } from './application/ports/todo.repository.port';
 import { TodosService } from './application/todos.service';
 import { TodoEntity } from './infrastructure/entities/todo.entity';
+import { TodoCreatedListener } from './infrastructure/listeners/todo-created.listener';
 import { MikroTodoRepository } from './infrastructure/repositories/mikro-todo.repository';
 import { TodosPublicApi } from './public/todos-public.api';
 import { TodosController } from './presentation/todos.controller';
@@ -16,6 +17,7 @@ import { TodosController } from './presentation/todos.controller';
   providers: [
     TodosService,
     TodosPublicApi,
+    TodoCreatedListener,
     {
       provide: TODO_REPOSITORY,
       useClass: MikroTodoRepository,
