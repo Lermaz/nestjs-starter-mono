@@ -1,4 +1,4 @@
-import { Todo } from '../../domain/todo.model';
+import { CreateTodoProps, Todo } from '../../domain/todo.model';
 import { TodoEntity } from '../entities/todo.entity';
 
 /**
@@ -18,13 +18,12 @@ export function toDomainTodo(entity: TodoEntity): Todo {
  */
 export function toNewTodoEntity(
   userId: string,
-  title: string,
-  isCompleted: boolean,
+  props: CreateTodoProps,
 ): Pick<TodoEntity, 'userId' | 'title' | 'isCompleted' | 'createdAt'> {
   return {
     userId,
-    title,
-    isCompleted,
+    title: props.title,
+    isCompleted: props.isCompleted,
     createdAt: new Date(),
   };
 }

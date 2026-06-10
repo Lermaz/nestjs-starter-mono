@@ -1,20 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import {
-  IsBoolean,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  MaxLength,
-} from 'class-validator';
+import { IsBoolean, IsOptional, IsString } from 'class-validator';
 
 /**
- * Input DTO for creating a todo.
+ * Input DTO for creating a todo (HTTP shape only).
  */
 export class CreateTodoDto {
-  @ApiProperty({ example: 'Buy groceries', maxLength: 255 })
+  @ApiProperty({ example: 'Buy groceries' })
   @IsString()
-  @IsNotEmpty()
-  @MaxLength(255)
   readonly title!: string;
 
   @ApiPropertyOptional({ example: false })

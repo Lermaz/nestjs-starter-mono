@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { ok } from '../../common/result/result.helpers';
 import type { AuthTokenPayload } from '../auth/public';
 import { Todo } from './domain/todo.model';
 import { TodosService } from './application/todos.service';
@@ -53,7 +54,7 @@ describe('TodosController', () => {
 
   describe('createTodo', () => {
     it('should delegate to service and map response', async () => {
-      mockTodosService.createTodo.mockResolvedValue(expectedTodo);
+      mockTodosService.createTodo.mockResolvedValue(ok(expectedTodo));
       const actualResult = await todosController.createTodo(inputUser, {
         title: 'Test todo',
       });
@@ -76,7 +77,7 @@ describe('TodosController', () => {
 
   describe('findTodoById', () => {
     it('should delegate to service and map response', async () => {
-      mockTodosService.findTodoById.mockResolvedValue(expectedTodo);
+      mockTodosService.findTodoById.mockResolvedValue(ok(expectedTodo));
       const actualResult = await todosController.findTodoById(
         inputUser,
         'todo-1',

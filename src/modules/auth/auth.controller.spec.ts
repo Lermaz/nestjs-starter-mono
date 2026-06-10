@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { ok } from '../../common/result/result.helpers';
 import { AuthService } from './application/auth.service';
 import { AuthController } from './presentation/auth.controller';
 
@@ -25,7 +26,7 @@ describe('AuthController', () => {
 
   describe('register', () => {
     it('should delegate to auth service', async () => {
-      mockAuthService.register.mockResolvedValue({ accessToken: 'token' });
+      mockAuthService.register.mockResolvedValue(ok({ accessToken: 'token' }));
       const actualResult = await authController.register({
         email: 'user@example.com',
         password: 'password123',
@@ -40,7 +41,7 @@ describe('AuthController', () => {
 
   describe('login', () => {
     it('should delegate to auth service', async () => {
-      mockAuthService.login.mockResolvedValue({ accessToken: 'token' });
+      mockAuthService.login.mockResolvedValue(ok({ accessToken: 'token' }));
       const actualResult = await authController.login({
         email: 'user@example.com',
         password: 'password123',

@@ -1,6 +1,6 @@
 import { EntityManager } from '@mikro-orm/core';
 import { Injectable } from '@nestjs/common';
-import { User } from '../../domain/user.model';
+import { CreateUserProps, User } from '../../domain/user.model';
 import { UserRepositoryPort } from '../../application/ports/user.repository.port';
 import { UserEntity } from '../entities/user.entity';
 import { toDomainUser, toNewUserEntity } from '../mappers/user.mapper';
@@ -28,10 +28,10 @@ export class MikroUserRepository implements UserRepositoryPort {
     return toDomainUser(entity);
   }
 
-  async save(email: string, passwordHash: string): Promise<User> {
+  async save(props: CreateUserProps): Promise<User> {
     const entity = this.entityManager.create(
       UserEntity,
-      toNewUserEntity(email, passwordHash),
+      toNewUserEntity(props),
     );
     await this.entityManager.persist(entity).flush();
     return toDomainUser(entity);

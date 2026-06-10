@@ -1,10 +1,10 @@
-import { Todo } from '../../domain/todo.model';
+import { SaveTodoCommand, Todo } from '../../domain/todo.model';
 
 /**
  * Contract for todo persistence operations.
  */
 export interface TodoRepositoryPort {
-  save(userId: string, title: string, isCompleted: boolean): Promise<Todo>;
+  save(command: SaveTodoCommand): Promise<Todo>;
   findAllByUserId(userId: string): Promise<Todo[]>;
   findByIdForUser(userId: string, id: string): Promise<Todo | null>;
   count(): Promise<number>;

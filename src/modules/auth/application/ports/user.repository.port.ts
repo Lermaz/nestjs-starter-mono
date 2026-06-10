@@ -1,4 +1,4 @@
-import { User } from '../../domain/user.model';
+import { CreateUserProps, User } from '../../domain/user.model';
 
 /**
  * Contract for user persistence operations.
@@ -6,7 +6,7 @@ import { User } from '../../domain/user.model';
 export interface UserRepositoryPort {
   findByEmail(email: string): Promise<User | null>;
   findById(id: string): Promise<User | null>;
-  save(email: string, passwordHash: string): Promise<User>;
+  save(props: CreateUserProps): Promise<User>;
 }
 
 export const USER_REPOSITORY = Symbol('USER_REPOSITORY');

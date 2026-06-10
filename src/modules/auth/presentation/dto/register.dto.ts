@@ -1,20 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
-
-const MIN_PASSWORD_LENGTH = 8;
+import { IsEmail, IsString } from 'class-validator';
 
 /**
- * Input DTO for user registration.
+ * Input DTO for user registration (HTTP shape only).
  */
 export class RegisterDto {
   @ApiProperty({ example: 'user@example.com' })
   @IsEmail()
-  @IsNotEmpty()
   readonly email!: string;
 
-  @ApiProperty({ example: 'password123', minLength: MIN_PASSWORD_LENGTH })
+  @ApiProperty({ example: 'password123' })
   @IsString()
-  @IsNotEmpty()
-  @MinLength(MIN_PASSWORD_LENGTH)
   readonly password!: string;
 }

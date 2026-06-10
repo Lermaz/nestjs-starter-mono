@@ -1,4 +1,4 @@
-import { User } from '../../domain/user.model';
+import { CreateUserProps, User } from '../../domain/user.model';
 import { UserEntity } from '../entities/user.entity';
 
 /**
@@ -17,12 +17,11 @@ export function toDomainUser(entity: UserEntity): User {
  * Maps user credentials to a new persistence entity shape.
  */
 export function toNewUserEntity(
-  email: string,
-  passwordHash: string,
+  props: CreateUserProps,
 ): Pick<UserEntity, 'email' | 'passwordHash' | 'createdAt'> {
   return {
-    email,
-    passwordHash,
+    email: props.email,
+    passwordHash: props.passwordHash,
     createdAt: new Date(),
   };
 }

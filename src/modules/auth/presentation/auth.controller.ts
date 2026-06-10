@@ -2,6 +2,7 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { Public } from '../../../common/decorators/public.decorator';
+import { unwrapDomainResult } from '../../../common/result';
 import { AuthService } from '../application/auth.service';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { LoginDto } from './dto/login.dto';
@@ -23,8 +24,9 @@ export class AuthController {
   @Post('register')
   @ApiOperation({ summary: 'Register a new user' })
   @ApiResponse({ status: 201, type: AuthResponseDto })
-  register(@Body() input: RegisterDto): Promise<AuthResponseDto> {
-    return this.authService.register(input.email, input.password);
+  async register(@Body() input: RegisterDto): Promise<AuthResponseDto> {
+    const result = await this.authService.register(input.email, input.password);
+    return unwrapDomainResult(result);
   }
 
   /**
@@ -35,7 +37,8 @@ export class AuthController {
   @Post('login')
   @ApiOperation({ summary: 'Login and receive JWT access token' })
   @ApiResponse({ status: 201, type: AuthResponseDto })
-  login(@Body() input: LoginDto): Promise<AuthResponseDto> {
-    return this.authService.login(input.email, input.password);
+  async login(@Body() input: LoginDto): Promise<AuthResponseDto> {
+    const result = await this.authService.login(input.email, input.password);
+    return unwrapDomainResult(result);
   }
 }
