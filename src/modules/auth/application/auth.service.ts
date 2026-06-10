@@ -13,6 +13,7 @@ import { normalizeEmail } from '../domain/email.normalization';
 import {
   assertEmailAvailable,
   assertPasswordMeetsPolicy,
+  INVALID_CREDENTIALS_MESSAGE,
 } from '../domain/registration.rules';
 import type { AuthTokenPayload } from '../public/auth-token-payload';
 import { USER_REPOSITORY } from './ports/user.repository.port';
@@ -71,11 +72,11 @@ export class AuthService {
     const normalizedEmail = normalizeEmail(email);
     const user = await this.userRepository.findByEmail(normalizedEmail);
     if (!user) {
-      return err(new DomainError('Invalid credentials', 401));
+      return err(new DomainError(INVALID_CREDENTIALS_MESSAGE, 401));
     }
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
     if (!isPasswordValid) {
-      return err(new DomainError('Invalid credentials', 401));
+      return err(new DomainError(INVALID_CREDENTIALS_MESSAGE, 401));
     }
     const accessToken = await this.signToken(user.id, user.email);
     return ok({ accessToken });

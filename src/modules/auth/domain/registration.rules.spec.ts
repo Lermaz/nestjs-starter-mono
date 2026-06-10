@@ -2,6 +2,7 @@ import { DomainError } from './domain.error';
 import {
   assertEmailAvailable,
   assertPasswordMeetsPolicy,
+  INVALID_CREDENTIALS_MESSAGE,
 } from './registration.rules';
 
 describe('assertPasswordMeetsPolicy', () => {
@@ -25,7 +26,7 @@ describe('assertEmailAvailable', () => {
     expect(actualResult.ok).toBe(true);
   });
 
-  it('should fail when email is already registered', () => {
+  it('should fail with generic credentials error when email exists', () => {
     const existingUser = {
       id: 'user-1',
       email: 'user@example.com',
@@ -36,6 +37,8 @@ describe('assertEmailAvailable', () => {
     expect(actualResult.ok).toBe(false);
     if (!actualResult.ok) {
       expect(actualResult.error).toBeInstanceOf(DomainError);
+      expect(actualResult.error.message).toBe(INVALID_CREDENTIALS_MESSAGE);
+      expect(actualResult.error.statusCode).toBe(401);
     }
   });
 });

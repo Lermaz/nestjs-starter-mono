@@ -80,7 +80,7 @@ describe('AuthService', () => {
       });
     });
 
-    it('should return DomainError when email exists', async () => {
+    it('should return generic credentials error when email exists', async () => {
       mockUserRepository.findByEmail.mockResolvedValue(inputUser);
       const actualResult = await authService.register(
         'user@example.com',
@@ -89,6 +89,8 @@ describe('AuthService', () => {
       expect(actualResult.ok).toBe(false);
       if (!actualResult.ok) {
         expect(actualResult.error).toBeInstanceOf(DomainError);
+        expect(actualResult.error.message).toBe('Invalid credentials');
+        expect(actualResult.error.statusCode).toBe(401);
       }
     });
 

@@ -3,6 +3,7 @@ import type { Result } from '../../../common/result/result';
 import { DomainError } from './domain.error';
 import { User } from './user.model';
 
+export const INVALID_CREDENTIALS_MESSAGE = 'Invalid credentials';
 const MIN_PASSWORD_LENGTH = 8;
 
 /**
@@ -28,7 +29,7 @@ export function assertEmailAvailable(
   existingUser: User | null,
 ): Result<void, DomainError> {
   if (existingUser) {
-    return err(new DomainError('Email is already registered', 409));
+    return err(new DomainError(INVALID_CREDENTIALS_MESSAGE, 401));
   }
   return ok(undefined);
 }
