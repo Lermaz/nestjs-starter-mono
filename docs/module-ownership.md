@@ -15,7 +15,7 @@ One sentence per module — what it owns and what it does not own.
 
 - [TodosModule](../src/modules/todos/README.md)
 - [AuthModule](../src/modules/auth/README.md)
-- [HealthModule](../src/modules/health/README.md)
+- [HealthModule](../src/modules/health/README.md) — `public/` barrel for shared types
 
 ## Rules
 
