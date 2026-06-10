@@ -16,6 +16,11 @@ export interface ReadinessResponseBody {
   readonly database: 'ok' | 'error';
 }
 
+export interface TodoPageResponseBody {
+  readonly items: TodoResponseBody[];
+  readonly nextCursor: string | null;
+}
+
 export interface AuthResponseBody {
   readonly accessToken: string;
 }
