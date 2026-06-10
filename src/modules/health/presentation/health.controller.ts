@@ -1,6 +1,7 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Public } from '../../../common/decorators/public.decorator';
+import { NonProductionGuard } from '../../../common/guards/non-production.guard';
 import { HealthService } from '../application/health.service';
 
 /**
@@ -25,6 +26,7 @@ export class HealthController {
   /**
    * Smoke test endpoint for health module verification.
    */
+  @UseGuards(NonProductionGuard)
   @Get('health/test')
   @ApiOperation({ summary: 'Health module smoke test' })
   @ApiResponse({ status: 200, description: 'OK status' })
