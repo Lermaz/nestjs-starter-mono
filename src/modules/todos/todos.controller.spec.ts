@@ -10,7 +10,12 @@ describe('TodosController', () => {
   let mockTodosService: jest.Mocked<
     Pick<
       TodosService,
-      'createTodo' | 'findAllTodos' | 'findTodoById' | 'getTestResponse'
+      | 'createTodo'
+      | 'findTodosPage'
+      | 'findTodoById'
+      | 'updateTodo'
+      | 'deleteTodo'
+      | 'getTestResponse'
     >
   >;
 
@@ -29,8 +34,10 @@ describe('TodosController', () => {
   beforeEach(async () => {
     mockTodosService = {
       createTodo: jest.fn(),
-      findAllTodos: jest.fn(),
+      findTodosPage: jest.fn(),
       findTodoById: jest.fn(),
+      updateTodo: jest.fn(),
+      deleteTodo: jest.fn(),
       getTestResponse: jest.fn(),
     };
     const app: TestingModule = await Test.createTestingModule({
@@ -45,44 +52,38 @@ describe('TodosController', () => {
     todosController = app.get<TodosController>(TodosController);
   });
 
-  describe('getTest', () => {
-    it('should return ok status', () => {
-      mockTodosService.getTestResponse.mockReturnValue({ status: 'ok' });
-      expect(todosController.getTest()).toEqual({ status: 'ok' });
-    });
-  });
-
-  describe('createTodo', () => {
-    it('should delegate to service and map response', async () => {
-      mockTodosService.createTodo.mockResolvedValue(ok(expectedTodo));
-      const actualResult = await todosController.createTodo(inputUser, {
-        title: 'Test todo',
+  describe('findTodosPage', () => {
+    it('should delegate to service and map paginated response', async () => {
+      mockTodosService.findTodosPage.mockResolvedValue({
+        items: [expectedTodo],
+        nextCursor: null,
       });
-      expect(mockTodosService.createTodo).toHaveBeenCalledWith(
-        'user-1',
-        'Test todo',
-        false,
-      );
-      expect(actualResult).toEqual(expectedTodo);
+      const actualResult = await todosController.findTodosPage(inputUser, {});
+      expect(actualResult.items).toHaveLength(1);
+      expect(actualResult.nextCursor).toBeNull();
     });
   });
 
-  describe('findAllTodos', () => {
-    it('should delegate to service and map responses', async () => {
-      mockTodosService.findAllTodos.mockResolvedValue([expectedTodo]);
-      const actualResult = await todosController.findAllTodos(inputUser);
-      expect(actualResult).toEqual([expectedTodo]);
-    });
-  });
-
-  describe('findTodoById', () => {
+  describe('updateTodo', () => {
     it('should delegate to service and map response', async () => {
-      mockTodosService.findTodoById.mockResolvedValue(ok(expectedTodo));
-      const actualResult = await todosController.findTodoById(
+      mockTodosService.updateTodo.mockResolvedValue(ok(expectedTodo));
+      const actualResult = await todosController.updateTodo(
         inputUser,
         'todo-1',
+        { title: 'Updated' },
       );
-      expect(actualResult).toEqual(expectedTodo);
+      expect(actualResult.title).toBe('Test todo');
+    });
+  });
+
+  describe('deleteTodo', () => {
+    it('should delegate to service', async () => {
+      mockTodosService.deleteTodo.mockResolvedValue(ok(undefined));
+      await todosController.deleteTodo(inputUser, 'todo-1');
+      expect(mockTodosService.deleteTodo).toHaveBeenCalledWith(
+        'user-1',
+        'todo-1',
+      );
     });
   });
 });

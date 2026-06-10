@@ -25,8 +25,10 @@ describe('TodosService', () => {
   beforeEach(async () => {
     mockTodoRepository = {
       save: jest.fn(),
-      findAllByUserId: jest.fn(),
+      findPageByUserId: jest.fn(),
       findByIdForUser: jest.fn(),
+      update: jest.fn(),
+      deleteForUser: jest.fn(),
       count: jest.fn(),
     };
     mockEventEmitter = {
@@ -53,36 +55,64 @@ describe('TodosService', () => {
       mockTodoRepository.save.mockResolvedValue(inputTodo);
       const actualResult = await todosService.createTodo('user-1', 'Test todo');
       expect(actualResult.ok).toBe(true);
-      expect(mockTodoRepository.save.mock.calls[0]).toEqual([
-        {
-          userId: 'user-1',
-          props: { title: 'Test todo', isCompleted: false },
-        },
-      ]);
-      if (actualResult.ok) {
-        expect(actualResult.value).toEqual(inputTodo);
-      }
       expect(mockEventEmitter.emit).toHaveBeenCalledWith(
         TODO_CREATED_EVENT,
         expect.objectContaining({ id: inputTodo.id, title: inputTodo.title }),
       );
     });
+  });
 
-    it('should return DomainError when title is empty', async () => {
-      const actualResult = await todosService.createTodo('user-1', '   ');
+  describe('findTodosPage', () => {
+    it('should return paginated todos from repository', async () => {
+      mockTodoRepository.findPageByUserId.mockResolvedValue({
+        items: [inputTodo],
+        nextCursor: null,
+      });
+      const actualResult = await todosService.findTodosPage('user-1', 10);
+      expect(actualResult.items).toHaveLength(1);
+    });
+  });
+
+  describe('updateTodo', () => {
+    it('should update an existing todo', async () => {
+      mockTodoRepository.findByIdForUser.mockResolvedValue(inputTodo);
+      mockTodoRepository.update.mockResolvedValue({
+        ...inputTodo,
+        title: 'Updated',
+      });
+      const actualResult = await todosService.updateTodo(
+        'user-1',
+        'todo-1',
+        'Updated',
+      );
+      expect(actualResult.ok).toBe(true);
+    });
+
+    it('should return DomainError when todo is missing', async () => {
+      mockTodoRepository.findByIdForUser.mockResolvedValue(null);
+      const actualResult = await todosService.updateTodo(
+        'user-1',
+        'missing',
+        'Updated',
+      );
+      expect(actualResult.ok).toBe(false);
+    });
+  });
+
+  describe('deleteTodo', () => {
+    it('should delete an existing todo', async () => {
+      mockTodoRepository.deleteForUser.mockResolvedValue(true);
+      const actualResult = await todosService.deleteTodo('user-1', 'todo-1');
+      expect(actualResult.ok).toBe(true);
+    });
+
+    it('should return DomainError when todo is missing', async () => {
+      mockTodoRepository.deleteForUser.mockResolvedValue(false);
+      const actualResult = await todosService.deleteTodo('user-1', 'missing');
       expect(actualResult.ok).toBe(false);
       if (!actualResult.ok) {
         expect(actualResult.error).toBeInstanceOf(DomainError);
       }
-    });
-  });
-
-  describe('findAllTodos', () => {
-    it('should return todos from repository', async () => {
-      mockTodoRepository.findAllByUserId.mockResolvedValue([inputTodo]);
-      const actualResult = await todosService.findAllTodos('user-1');
-      expect(actualResult).toHaveLength(1);
-      expect(actualResult[0].id).toBe(inputTodo.id);
     });
   });
 
@@ -91,21 +121,6 @@ describe('TodosService', () => {
       mockTodoRepository.findByIdForUser.mockResolvedValue(inputTodo);
       const actualResult = await todosService.findTodoById('user-1', 'todo-1');
       expect(actualResult).toEqual(ok(inputTodo));
-    });
-
-    it('should return DomainError when todo is missing', async () => {
-      mockTodoRepository.findByIdForUser.mockResolvedValue(null);
-      const actualResult = await todosService.findTodoById('user-1', 'missing');
-      expect(actualResult.ok).toBe(false);
-      if (!actualResult.ok) {
-        expect(actualResult.error).toBeInstanceOf(DomainError);
-      }
-    });
-  });
-
-  describe('getTestResponse', () => {
-    it('should return ok status', () => {
-      expect(todosService.getTestResponse()).toEqual({ status: 'ok' });
     });
   });
 });

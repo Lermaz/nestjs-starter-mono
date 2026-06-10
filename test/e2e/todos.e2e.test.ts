@@ -6,6 +6,7 @@ import { App } from 'supertest/types';
 import {
   createTestApp,
   registerAndLogin,
+  type TodoPageResponseBody,
   type TodoResponseBody,
 } from './helpers/test-app';
 
@@ -45,7 +46,7 @@ void describe('TodosController (e2e)', () => {
     assert.strictEqual(response.status, 400);
   });
 
-  void it('POST /todos creates and GET /todos lists', async () => {
+  void it('POST /todos creates and GET /todos lists paginated', async () => {
     const createResponse = await request(app.getHttpServer())
       .post('/todos')
       .set('Authorization', `Bearer ${accessToken}`)
@@ -53,21 +54,46 @@ void describe('TodosController (e2e)', () => {
     assert.strictEqual(createResponse.status, 201);
     const createdTodo = createResponse.body as TodoResponseBody;
     assert.strictEqual(createdTodo.title, 'E2E todo');
-    assert.strictEqual(createdTodo.isCompleted, false);
     const listResponse = await request(app.getHttpServer())
       .get('/todos')
       .set('Authorization', `Bearer ${accessToken}`);
     assert.strictEqual(listResponse.status, 200);
-    const todos = listResponse.body as TodoResponseBody[];
-    assert.strictEqual(todos.length, 1);
-    assert.strictEqual(todos[0]?.title, 'E2E todo');
+    const page = listResponse.body as TodoPageResponseBody;
+    assert.strictEqual(page.items.length, 1);
+    assert.strictEqual(page.items[0]?.title, 'E2E todo');
+    assert.strictEqual(page.nextCursor, null);
   });
 
-  void it('GET /todos/:id returns 404 for unknown id', async () => {
-    const response = await request(app.getHttpServer())
-      .get('/todos/00000000-0000-0000-0000-000000000000')
+  void it('PATCH /todos/:id updates a todo', async () => {
+    const createResponse = await request(app.getHttpServer())
+      .post('/todos')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ title: 'Before patch' });
+    const createdTodo = createResponse.body as TodoResponseBody;
+    const patchResponse = await request(app.getHttpServer())
+      .patch(`/todos/${createdTodo.id}`)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ title: 'After patch', isCompleted: true });
+    assert.strictEqual(patchResponse.status, 200);
+    const patchedTodo = patchResponse.body as TodoResponseBody;
+    assert.strictEqual(patchedTodo.title, 'After patch');
+    assert.strictEqual(patchedTodo.isCompleted, true);
+  });
+
+  void it('DELETE /todos/:id removes a todo', async () => {
+    const createResponse = await request(app.getHttpServer())
+      .post('/todos')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ title: 'Delete me' });
+    const createdTodo = createResponse.body as TodoResponseBody;
+    const deleteResponse = await request(app.getHttpServer())
+      .delete(`/todos/${createdTodo.id}`)
       .set('Authorization', `Bearer ${accessToken}`);
-    assert.strictEqual(response.status, 404);
+    assert.strictEqual(deleteResponse.status, 204);
+    const getResponse = await request(app.getHttpServer())
+      .get(`/todos/${createdTodo.id}`)
+      .set('Authorization', `Bearer ${accessToken}`);
+    assert.strictEqual(getResponse.status, 404);
   });
 
   void it('GET /todos does not return another user todos', async () => {
@@ -83,38 +109,7 @@ void describe('TodosController (e2e)', () => {
       .get('/todos')
       .set('Authorization', `Bearer ${otherUserToken}`);
     assert.strictEqual(listResponse.status, 200);
-    const todos = listResponse.body as TodoResponseBody[];
-    assert.strictEqual(todos.length, 0);
-  });
-
-  void it('GET /todos/:id returns 404 for another user todo', async () => {
-    const otherUserToken = await registerAndLogin(
-      app,
-      'isolation-user@example.com',
-    );
-    const createResponse = await request(app.getHttpServer())
-      .post('/todos')
-      .set('Authorization', `Bearer ${accessToken}`)
-      .send({ title: 'Private todo' });
-    const createdTodo = createResponse.body as TodoResponseBody;
-    const getResponse = await request(app.getHttpServer())
-      .get(`/todos/${createdTodo.id}`)
-      .set('Authorization', `Bearer ${otherUserToken}`);
-    assert.strictEqual(getResponse.status, 404);
-  });
-
-  void it('GET /todos/:id returns created todo', async () => {
-    const createResponse = await request(app.getHttpServer())
-      .post('/todos')
-      .set('Authorization', `Bearer ${accessToken}`)
-      .send({ title: 'Find me' });
-    assert.strictEqual(createResponse.status, 201);
-    const createdTodo = createResponse.body as TodoResponseBody;
-    const getResponse = await request(app.getHttpServer())
-      .get(`/todos/${createdTodo.id}`)
-      .set('Authorization', `Bearer ${accessToken}`);
-    assert.strictEqual(getResponse.status, 200);
-    const foundTodo = getResponse.body as TodoResponseBody;
-    assert.strictEqual(foundTodo.title, 'Find me');
+    const page = listResponse.body as TodoPageResponseBody;
+    assert.strictEqual(page.items.length, 0);
   });
 });

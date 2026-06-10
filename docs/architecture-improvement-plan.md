@@ -27,8 +27,8 @@ Each feature module follows: `domain/` → `application/` → `infrastructure/` 
 | Area | Issue |
 |------|-------|
 | Ops | Consider read replicas / connection pooling when scaling |
-| API | CRUD incomplete (no PATCH/DELETE); no pagination |
 | Application | Use-case split deferred until services exceed ~150 lines |
+| Scale | Monorepo / outbox / CQRS deferred — see [scale-path.md](./scale-path.md) |
 
 ---
 
@@ -98,23 +98,23 @@ Each feature module follows: `domain/` → `application/` → `infrastructure/` 
 
 ## Phase 5 — API Maturity
 
-| Step | Action |
-|------|--------|
-| 5.1 | Complete CRUD: `PATCH /todos/:id`, `DELETE /todos/:id` |
-| 5.2 | Pagination: `GET /todos?cursor=&limit=` |
-| 5.3 | Document global error response shape in Swagger |
-| 5.4 | Rate-limit sensitive todo endpoints if needed |
+| Step | Action | Status |
+|------|--------|--------|
+| 5.1 | Complete CRUD: `PATCH /todos/:id`, `DELETE /todos/:id` | ✅ |
+| 5.2 | Pagination: `GET /todos?cursor=&limit=` | ✅ |
+| 5.3 | Document global error response shape in Swagger | ✅ |
+| 5.4 | Rate-limit sensitive todo endpoints if needed | ✅ |
 
 ---
 
-## Phase 6 — Scale Path (defer until triggered)
+## Phase 6 — Scale Path
 
-| Trigger | Action |
-|---------|--------|
-| 2+ deployables | Monorepo: `apps/api`, `libs/domain-events`, `libs/common` |
-| Async side effects grow | Outbox pattern or message bus |
-| Read-heavy endpoints | CQRS read models |
-| Team > 5 modules | Module-level CODEOWNERS + arch tests per module |
+| Trigger | Action | Status |
+|---------|--------|--------|
+| 2+ deployables | Monorepo: `apps/api`, `libs/domain-events`, `libs/common` | 📋 see [scale-path.md](./scale-path.md) |
+| Async side effects grow | Outbox pattern or message bus | 📋 documented |
+| Read-heavy endpoints | CQRS read models | 📋 documented |
+| Team > 5 modules | Module-level CODEOWNERS + arch tests per module | ✅ CODEOWNERS |
 
 ---
 

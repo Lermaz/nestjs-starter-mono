@@ -12,8 +12,10 @@ describe('TodosPublicApi', () => {
   beforeEach(async () => {
     mockTodoRepository = {
       save: jest.fn(),
-      findAllByUserId: jest.fn(),
+      findPageByUserId: jest.fn(),
       findByIdForUser: jest.fn(),
+      update: jest.fn(),
+      deleteForUser: jest.fn(),
       count: jest.fn(),
     };
     const app: TestingModule = await Test.createTestingModule({

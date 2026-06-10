@@ -23,3 +23,30 @@ export interface SaveTodoCommand {
   readonly userId: string;
   readonly props: CreateTodoProps;
 }
+
+/**
+ * Paginated todo list for a user.
+ */
+export interface TodoPage {
+  readonly items: readonly Todo[];
+  readonly nextCursor: string | null;
+}
+
+/**
+ * Query for cursor-based todo pagination.
+ */
+export interface FindTodosPageQuery {
+  readonly userId: string;
+  readonly limit: number;
+  readonly cursor?: string;
+}
+
+/**
+ * Command for updating an existing todo.
+ */
+export interface UpdateTodoCommand {
+  readonly userId: string;
+  readonly todoId: string;
+  readonly title?: string;
+  readonly isCompleted?: boolean;
+}
