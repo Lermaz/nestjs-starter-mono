@@ -1,134 +1,230 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# nestjs-starter-mono
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A production-oriented **NestJS modular monolith** starter with enforced module boundaries, JWT auth, user-scoped todos, MikroORM migrations, and security hardening out of the box.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Built as a reference implementation for clean architecture in a single deployable: domain-driven feature modules, repository ports, public facades for cross-module access, and automated architecture checks in CI.
 
-## Description
+## Tech stack
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+| Layer | Choice |
+|-------|--------|
+| Runtime | Node.js 22, TypeScript 5 |
+| Framework | NestJS 11 |
+| ORM | MikroORM 7 (SQLite) |
+| Auth | JWT (Passport), bcrypt |
+| Validation | class-validator, class-transformer |
+| API docs | Swagger (dev / opt-in prod) |
+| Security | helmet, CORS, rate limiting, env validation |
+| Tooling | pnpm, ESLint, Prettier, dependency-cruiser, Jest |
 
 ## Architecture
 
+```
+AppModule
+├── CoreModule      → config, database, global guards/filters/interceptors
+├── AuthModule      → registration, login, JWT, users table
+├── HealthModule    → liveness / readiness
+└── TodosModule     → user-scoped todo CRUD, integration events
+```
+
+Each feature module follows:
+
+```
+modules/<feature>/
+  domain/           # pure TypeScript — models, rules, factories
+  application/      # services, ports, events
+  infrastructure/   # entities, repositories, listeners
+  presentation/     # controllers, DTOs, mappers
+  public/           # cross-module facade + exported types
+```
+
+**Boundary rules** (enforced by `pnpm arch:check`):
+
+- Domain layer cannot import NestJS or MikroORM
+- Application layer cannot import presentation DTOs or ORM entities
+- Cross-module imports go through `public/` barrels only
+
+Further reading:
+
+- [Architecture improvement plan](docs/architecture-improvement-plan.md)
 - [Modular NestJS roadmap](docs/modular-nestjs-roadmap.md)
 - [Module ownership](docs/module-ownership.md)
-- [Architecture improvement plan](docs/architecture-improvement-plan.md)
 - [Scale path](docs/scale-path.md)
 
-## Docker
+## API overview
 
-Copy `.env.example` to `.env` and set a strong `JWT_SECRET` before starting.
+### Auth (`/auth`)
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| `POST` | `/auth/register` | Public | Register; returns JWT (5/min) |
+| `POST` | `/auth/login` | Public | Login; returns JWT (5/min) |
+
+### Todos (`/todos`)
+
+All todo routes require `Authorization: Bearer <token>`. Todos are scoped to the authenticated user.
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/todos` | Create todo (30/min) |
+| `GET` | `/todos` | List with cursor pagination (`?cursor=&limit=`, default 20) |
+| `GET` | `/todos/:id` | Get by id (owner only) |
+| `PATCH` | `/todos/:id` | Partial update (30/min) |
+| `DELETE` | `/todos/:id` | Delete (30/min, 204) |
+
+`GET /todos` returns `{ items, nextCursor }`.
+
+### Health
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/` | Liveness |
+| `GET` | `/health/ready` | Readiness + database connectivity |
+| `GET` | `/health/test` | Module smoke test (non-production only) |
+| `GET` | `/todos/admin/test` | Module smoke test (non-production only) |
+
+### Error shape
+
+All errors return a consistent JSON body:
+
+```json
+{
+  "statusCode": 400,
+  "message": "Human-readable message",
+  "timestamp": "2026-06-10T12:00:00.000Z",
+  "path": "/todos"
+}
+```
+
+## Security
+
+- Global JWT guard with `@Public()` opt-out
+- User-scoped todo queries (no cross-user IDOR)
+- JWT re-validates user existence on each request
+- Rate limiting: 100/min global; stricter limits on auth and write endpoints
+- helmet, 100kb body limits, opt-in CORS via `CORS_ORIGINS`
+- Production fails on missing/default `JWT_SECRET`
+- Swagger disabled in production unless `ENABLE_SWAGGER=true`
+- Email normalization; unified credential errors; password length cap (72 chars)
+- Smoke test routes return 404 in production
+
+## Getting started
+
+### Prerequisites
+
+- Node.js 22+
+- pnpm 9+
+
+### Local development
 
 ```bash
 cp .env.example .env
-# Edit .env — JWT_SECRET is required in production
+# Set JWT_SECRET (any non-empty value is fine for local dev)
 
-# Build and run with Docker
-docker build -t nestjs-starter-mono .
-docker run -p 3000:3000 --env-file .env nestjs-starter-mono
-
-# Or use docker-compose (persists SQLite in ./data)
-docker compose up --build
+pnpm install
+pnpm start:dev
 ```
 
-Swagger is at `http://localhost:3000/docs` in development. In production it is disabled unless `ENABLE_SWAGGER=true`.
+- API: `http://localhost:3000`
+- Swagger: `http://localhost:3000/docs`
 
-## Environment variables
+### Environment variables
 
 | Variable | Required (prod) | Description |
 |----------|-----------------|-------------|
 | `JWT_SECRET` | Yes | Signing key; must not be the default placeholder |
 | `DATABASE_URL` | Yes | SQLite path, e.g. `sqlite://./data/app.db` |
+| `NODE_ENV` | No | `development` (default) or `production` |
+| `PORT` | No | HTTP port (default `3000`) |
 | `CORS_ORIGINS` | No | Comma-separated allowed origins |
 | `ENABLE_SWAGGER` | No | Set `true` to expose `/docs` in production |
 | `JWT_EXPIRES_IN` | No | Token lifetime (default `1d`) |
 | `BCRYPT_ROUNDS` | No | bcrypt cost factor (default `10`) |
 
-## Project setup
+## Docker
 
 ```bash
-$ pnpm install
+cp .env.example .env
+# Edit .env — JWT_SECRET is required in production
+
+docker compose up --build
 ```
 
-## Compile and run the project
+SQLite data persists in `./data`. The compose file loads secrets from `.env` (not committed).
 
 ```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+# Manual image build
+docker build -t nestjs-starter-mono .
+docker run -p 3000:3000 --env-file .env nestjs-starter-mono
 ```
 
-## Run tests
+## Scripts
+
+| Command | Description |
+|---------|-------------|
+| `pnpm start:dev` | Dev server with watch |
+| `pnpm start:prod` | Run compiled `dist/main.js` |
+| `pnpm build` | Compile TypeScript |
+| `pnpm lint` | ESLint |
+| `pnpm test` | Unit tests (Jest) |
+| `pnpm test:e2e` | End-to-end tests |
+| `pnpm test:cov` | Coverage report |
+| `pnpm arch:check` | dependency-cruiser boundary rules |
+| `pnpm migration:create` | Generate MikroORM migration |
+| `pnpm migration:up` | Apply pending migrations |
+| `pnpm migration:down` | Revert last migration |
+
+## CI pipeline
+
+On every push and PR (`.github/workflows/ci.yml`):
+
+1. `pnpm audit --audit-level high`
+2. `pnpm lint`
+3. `pnpm test`
+4. `pnpm build`
+5. `pnpm arch:check`
+6. `pnpm test:e2e`
+
+## Database migrations
+
+Migrations run automatically on application startup via `DatabaseMigrationService`.
 
 ```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+# After entity/schema changes
+pnpm migration:create
+pnpm migration:up
 ```
 
-## Deployment
+Migration files live in `src/migrations/` and are copied to `dist/migrations/` on build.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## Project layout
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+```
+src/
+  app.module.ts
+  main.ts
+  core/                 # config, database, HTTP security bootstrap
+  common/               # shared decorators, filters, guards, Result type
+  modules/
+    auth/
+    health/
+    todos/
+  migrations/
+test/
+  e2e/                  # API integration tests
+docs/                   # architecture guides
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## Adding a feature module
 
-## Resources
+1. Create `src/modules/<feature>/` with `domain`, `application`, `infrastructure`, `presentation`, `public`
+2. Export only facades/types from `public/index.ts`
+3. Wire the module in `AppModule`
+4. Add a module `README.md` and a CODEOWNERS entry
+5. Add unit + e2e tests; ensure `pnpm arch:check` passes
 
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+See [module ownership](docs/module-ownership.md) for conventions.
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+UNLICENSED — private project.
