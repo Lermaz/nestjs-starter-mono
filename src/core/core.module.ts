@@ -1,3 +1,4 @@
+import { MikroOrmMiddleware } from '@mikro-orm/nestjs';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
@@ -13,6 +14,7 @@ import { AuthModule } from '../modules/auth/auth.module';
 import { appConfig } from './config/app.config';
 import { authConfig } from './config/auth.config';
 import { databaseConfig } from './config/database.config';
+import { validateEnvironment } from './config/env.validation';
 import { DatabaseModule } from './database/database.module';
 
 /**
@@ -23,6 +25,7 @@ import { DatabaseModule } from './database/database.module';
     ConfigModule.forRoot({
       isGlobal: true,
       load: [appConfig, authConfig, databaseConfig],
+      validate: validateEnvironment,
     }),
     EventEmitterModule.forRoot(),
     ThrottlerModule.forRoot([
@@ -60,6 +63,6 @@ import { DatabaseModule } from './database/database.module';
 })
 export class CoreModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
-    consumer.apply(RequestIdMiddleware).forRoutes('*');
+    consumer.apply(MikroOrmMiddleware, RequestIdMiddleware).forRoutes('*');
   }
 }
