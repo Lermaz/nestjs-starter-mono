@@ -30,11 +30,11 @@ void describe('HealthController (e2e)', () => {
     assert.deepStrictEqual(response.body, { status: 'ok' });
   });
 
-  void it('GET /health/ready returns ok with todos count', async () => {
+  void it('GET /health/ready returns ok with database status', async () => {
     const response = await request(app.getHttpServer()).get('/health/ready');
     assert.strictEqual(response.status, 200);
     const readiness = response.body as ReadinessResponseBody;
     assert.strictEqual(readiness.status, 'ok');
-    assert.strictEqual(typeof readiness.todosCount, 'number');
+    assert.strictEqual(readiness.database, 'ok');
   });
 });

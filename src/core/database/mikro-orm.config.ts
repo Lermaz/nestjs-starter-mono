@@ -1,6 +1,9 @@
+import { Migrator } from '@mikro-orm/migrations';
 import { defineConfig, SqliteDriver, type Options } from '@mikro-orm/sqlite';
 
 const DEFAULT_DATABASE_URL = 'sqlite://./data/app.db';
+const MIGRATIONS_PATH = './dist/migrations';
+const MIGRATIONS_PATH_TS = './src/migrations';
 
 /**
  * Builds MikroORM options from a database connection URL.
@@ -15,7 +18,12 @@ export function buildMikroOrmOptions(databaseUrl: string): Options {
     driver: SqliteDriver,
     dbName,
     entities: ['./dist/**/*.entity.js'],
-    allowGlobalContext: true,
+    entitiesTs: ['./src/**/*.entity.ts'],
+    extensions: [Migrator],
+    migrations: {
+      path: MIGRATIONS_PATH,
+      pathTs: MIGRATIONS_PATH_TS,
+    },
   });
 }
 

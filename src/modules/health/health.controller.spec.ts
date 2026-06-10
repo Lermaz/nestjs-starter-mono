@@ -1,23 +1,23 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { TodosPublicApi } from '../todos/public/todos-public.api';
+import { DATABASE_HEALTH } from '../../core/database/ports/database-health.port';
 import { HealthService } from './application/health.service';
 import { HealthController } from './presentation/health.controller';
 
 describe('HealthController', () => {
   let healthController: HealthController;
-  let mockTodosPublicApi: jest.Mocked<Pick<TodosPublicApi, 'countTodos'>>;
+  let mockDatabaseHealth: { checkConnectivity: jest.Mock };
 
   beforeEach(async () => {
-    mockTodosPublicApi = {
-      countTodos: jest.fn().mockResolvedValue(0),
+    mockDatabaseHealth = {
+      checkConnectivity: jest.fn().mockResolvedValue(true),
     };
     const app: TestingModule = await Test.createTestingModule({
       controllers: [HealthController],
       providers: [
         HealthService,
         {
-          provide: TodosPublicApi,
-          useValue: mockTodosPublicApi,
+          provide: DATABASE_HEALTH,
+          useValue: mockDatabaseHealth,
         },
       ],
     }).compile();
@@ -37,10 +37,9 @@ describe('HealthController', () => {
   });
 
   describe('getReadiness', () => {
-    it('should return readiness with todos count', async () => {
-      mockTodosPublicApi.countTodos.mockResolvedValue(1);
+    it('should return readiness with database status', async () => {
       const actualResult = await healthController.getReadiness();
-      expect(actualResult).toEqual({ status: 'ok', todosCount: 1 });
+      expect(actualResult).toEqual({ status: 'ok', database: 'ok' });
     });
   });
 });

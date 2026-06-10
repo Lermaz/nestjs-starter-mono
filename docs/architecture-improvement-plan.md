@@ -26,7 +26,7 @@ Each feature module follows: `domain/` → `application/` → `infrastructure/` 
 
 | Area | Issue |
 |------|-------|
-| Database | `schema.update()` on boot; no versioned migrations |
+| Ops | Consider read replicas / connection pooling when scaling |
 | API | CRUD incomplete (no PATCH/DELETE); no pagination |
 | Application | Use-case split deferred until services exceed ~150 lines |
 
@@ -86,13 +86,13 @@ Each feature module follows: `domain/` → `application/` → `infrastructure/` 
 
 ## Phase 4 — Database & Production Readiness
 
-| Step | Action |
-|------|--------|
-| 4.1 | Replace `schema.update()` with MikroORM migrations |
-| 4.2 | Add `DatabaseHealthPort` in core (simple connectivity check) |
-| 4.3 | Remove `allowGlobalContext`; use request-scoped EntityManager |
-| 4.4 | Validate env on boot (`JWT_SECRET`, `DATABASE_URL`) |
-| 4.5 | Fail fast if default `JWT_SECRET` in production |
+| Step | Action | Status |
+|------|--------|--------|
+| 4.1 | Replace `schema.update()` with MikroORM migrations | ✅ |
+| 4.2 | Add `DatabaseHealthPort` in core (simple connectivity check) | ✅ |
+| 4.3 | Remove `allowGlobalContext`; use `MikroOrmMiddleware` | ✅ |
+| 4.4 | Validate env on boot (`JWT_SECRET`, `DATABASE_URL`) | ✅ |
+| 4.5 | Fail fast if default `JWT_SECRET` in production | ✅ |
 
 ---
 

@@ -41,7 +41,7 @@ export class HealthController {
     status: 200,
     description: 'Readiness status with todos count',
   })
-  getReadiness(): Promise<{ status: string; todosCount: number }> {
+  getReadiness(): Promise<{ status: string; database: 'ok' | 'error' }> {
     return this.healthService.getReadiness();
   }
 }

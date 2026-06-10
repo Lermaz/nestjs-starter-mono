@@ -5,7 +5,7 @@ One sentence per module — what it owns and what it does not own.
 | Module | Owns |
 |--------|------|
 | **CoreModule** | App-wide config, global filters/interceptors, and platform wiring |
-| **DatabaseModule** | MikroORM root connection and schema bootstrap |
+| **DatabaseModule** | MikroORM connection, migrations on boot, and `DatabaseHealthPort` |
 | **CommonModule** | Shared cross-cutting providers (filters, interceptors, event listeners) consumed by Core |
 | **HealthModule** | Liveness/readiness HTTP endpoints and operational smoke checks |
 | **AuthModule** | User registration/login, JWT issuance, `AuthPublicApi`, and the `users` table |
