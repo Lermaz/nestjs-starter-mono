@@ -17,9 +17,9 @@ Import from: `src/modules/todos/public/todos-public.api.ts`
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
 | `GET` | `/todos/admin/test` | Public | Smoke test |
-| `POST` | `/todos` | Bearer | Create todo |
-| `GET` | `/todos` | Bearer | List todos |
-| `GET` | `/todos/:id` | Bearer | Get todo by id |
+| `POST` | `/todos` | Bearer | Create todo (scoped to authenticated user) |
+| `GET` | `/todos` | Bearer | List current user's todos |
+| `GET` | `/todos/:id` | Bearer | Get todo by id (owner only) |
 
 ## Private layers
 

@@ -12,26 +12,30 @@ import { toDomainTodo, toNewTodoEntity } from '../mappers/todo.mapper';
 export class MikroTodoRepository implements TodoRepositoryPort {
   constructor(private readonly entityManager: EntityManager) {}
 
-  async save(title: string, isCompleted: boolean): Promise<Todo> {
+  async save(
+    userId: string,
+    title: string,
+    isCompleted: boolean,
+  ): Promise<Todo> {
     const entity = this.entityManager.create(
       TodoEntity,
-      toNewTodoEntity(title, isCompleted),
+      toNewTodoEntity(userId, title, isCompleted),
     );
     await this.entityManager.persist(entity).flush();
     return toDomainTodo(entity);
   }
 
-  async findAll(): Promise<Todo[]> {
+  async findAllByUserId(userId: string): Promise<Todo[]> {
     const entities = await this.entityManager.find(
       TodoEntity,
-      {},
+      { userId },
       { orderBy: { createdAt: 'desc' } },
     );
     return entities.map((entity) => toDomainTodo(entity));
   }
 
-  async findById(id: string): Promise<Todo | null> {
-    const entity = await this.entityManager.findOne(TodoEntity, { id });
+  async findByIdForUser(userId: string, id: string): Promise<Todo | null> {
+    const entity = await this.entityManager.findOne(TodoEntity, { id, userId });
     if (!entity) {
       return null;
     }

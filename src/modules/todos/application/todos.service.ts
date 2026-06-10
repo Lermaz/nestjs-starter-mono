@@ -23,9 +23,17 @@ export class TodosService {
   /**
    * Creates a new todo from the given input.
    */
-  async createTodo(title: string, isCompleted = false): Promise<Todo> {
+  async createTodo(
+    userId: string,
+    title: string,
+    isCompleted = false,
+  ): Promise<Todo> {
     const props = createTodoProps(title, isCompleted);
-    const todo = await this.todoRepository.save(props.title, props.isCompleted);
+    const todo = await this.todoRepository.save(
+      userId,
+      props.title,
+      props.isCompleted,
+    );
     this.eventEmitter.emit(
       TODO_CREATED_EVENT,
       new TodoCreatedEvent(todo.id, todo.title),
@@ -36,15 +44,15 @@ export class TodosService {
   /**
    * Returns all todos.
    */
-  async findAllTodos(): Promise<Todo[]> {
-    return this.todoRepository.findAll();
+  async findAllTodos(userId: string): Promise<Todo[]> {
+    return this.todoRepository.findAllByUserId(userId);
   }
 
   /**
-   * Returns a single todo by id.
+   * Returns a single todo by id for the given user.
    */
-  async findTodoById(id: string): Promise<Todo> {
-    const todo = await this.todoRepository.findById(id);
+  async findTodoById(userId: string, id: string): Promise<Todo> {
+    const todo = await this.todoRepository.findByIdForUser(userId, id);
     if (!todo) {
       throw new NotFoundException(`Todo with id "${id}" not found`);
     }

@@ -70,6 +70,39 @@ void describe('TodosController (e2e)', () => {
     assert.strictEqual(response.status, 404);
   });
 
+  void it('GET /todos does not return another user todos', async () => {
+    const otherUserToken = await registerAndLogin(
+      app,
+      'other-user@example.com',
+    );
+    await request(app.getHttpServer())
+      .post('/todos')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ title: 'User A todo' });
+    const listResponse = await request(app.getHttpServer())
+      .get('/todos')
+      .set('Authorization', `Bearer ${otherUserToken}`);
+    assert.strictEqual(listResponse.status, 200);
+    const todos = listResponse.body as TodoResponseBody[];
+    assert.strictEqual(todos.length, 0);
+  });
+
+  void it('GET /todos/:id returns 404 for another user todo', async () => {
+    const otherUserToken = await registerAndLogin(
+      app,
+      'isolation-user@example.com',
+    );
+    const createResponse = await request(app.getHttpServer())
+      .post('/todos')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ title: 'Private todo' });
+    const createdTodo = createResponse.body as TodoResponseBody;
+    const getResponse = await request(app.getHttpServer())
+      .get(`/todos/${createdTodo.id}`)
+      .set('Authorization', `Bearer ${otherUserToken}`);
+    assert.strictEqual(getResponse.status, 404);
+  });
+
   void it('GET /todos/:id returns created todo', async () => {
     const createResponse = await request(app.getHttpServer())
       .post('/todos')
