@@ -13,7 +13,7 @@ export interface TodoResponseBody {
 
 export interface ReadinessResponseBody {
   readonly status: string;
-  readonly todosCount: number;
+  readonly database: 'ok' | 'error';
 }
 
 export interface AuthResponseBody {
