@@ -1,5 +1,5 @@
-import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { DomainError } from '../../common/errors/domain.error';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 
@@ -73,11 +73,11 @@ describe('AuthService', () => {
       );
     });
 
-    it('should throw ConflictException when email exists', async () => {
+    it('should throw DomainError when email exists', async () => {
       mockUserRepository.findByEmail.mockResolvedValue(inputUser);
       await expect(
         authService.register('user@example.com', 'password123'),
-      ).rejects.toThrow(ConflictException);
+      ).rejects.toThrow(DomainError);
     });
   });
 
@@ -92,19 +92,19 @@ describe('AuthService', () => {
       expect(actualResult).toEqual({ accessToken: 'test-token' });
     });
 
-    it('should throw UnauthorizedException for unknown user', async () => {
+    it('should throw DomainError for unknown user', async () => {
       mockUserRepository.findByEmail.mockResolvedValue(null);
       await expect(
         authService.login('user@example.com', 'password123'),
-      ).rejects.toThrow(UnauthorizedException);
+      ).rejects.toThrow(DomainError);
     });
 
-    it('should throw UnauthorizedException for invalid password', async () => {
+    it('should throw DomainError for invalid password', async () => {
       mockUserRepository.findByEmail.mockResolvedValue(inputUser);
       jest.mocked(bcrypt.compare).mockResolvedValue(false as never);
       await expect(
         authService.login('user@example.com', 'wrong-password'),
-      ).rejects.toThrow(UnauthorizedException);
+      ).rejects.toThrow(DomainError);
     });
   });
 });

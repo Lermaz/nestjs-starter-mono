@@ -1,15 +1,14 @@
-import {
-  ConflictException,
-  Inject,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import {
+  Inject,
+  Injectable,
+} from '../../../common/nest/application.decorators';
+import { DomainError } from '../../../common/errors/domain.error';
 import { AuthConfig } from '../../../core/config/auth.config';
 import { assertEmailAvailable } from '../domain/registration.rules';
-import { AuthTokenPayload } from '../public/auth-token-payload';
+import type { AuthTokenPayload } from '../public/auth-token-payload';
 import { USER_REPOSITORY } from './ports/user.repository.port';
 import type { UserRepositoryPort } from './ports/user.repository.port';
 
@@ -33,11 +32,7 @@ export class AuthService {
     password: string,
   ): Promise<{ accessToken: string }> {
     const existingUser = await this.userRepository.findByEmail(email);
-    try {
-      assertEmailAvailable(existingUser);
-    } catch {
-      throw new ConflictException('Email is already registered');
-    }
+    assertEmailAvailable(existingUser);
     const passwordHash = await this.hashPassword(password);
     const user = await this.userRepository.save(email, passwordHash);
     return { accessToken: await this.signToken(user.id, user.email) };
@@ -52,11 +47,11 @@ export class AuthService {
   ): Promise<{ accessToken: string }> {
     const user = await this.userRepository.findByEmail(email);
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new DomainError('Invalid credentials', 401);
     }
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new DomainError('Invalid credentials', 401);
     }
     return { accessToken: await this.signToken(user.id, user.email) };
   }

@@ -1,10 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { TodosPublicApi } from '../../todos/public/todos-public.api';
-
-export interface ReadinessResponse {
-  readonly status: string;
-  readonly todosCount: number;
-}
+import { Injectable } from '../../../common/nest/application.decorators';
+import { TodosPublicApi } from '../../todos/public';
+import type { ReadinessResponse } from '../public/readiness-response';
 
 /**
  * Service for health check operations.
