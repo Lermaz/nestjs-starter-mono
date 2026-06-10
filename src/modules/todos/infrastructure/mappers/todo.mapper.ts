@@ -17,10 +17,12 @@ export function toDomainTodo(entity: TodoEntity): Todo {
  * Maps domain todo properties to a new persistence entity shape.
  */
 export function toNewTodoEntity(
+  userId: string,
   title: string,
   isCompleted: boolean,
-): Pick<TodoEntity, 'title' | 'isCompleted' | 'createdAt'> {
+): Pick<TodoEntity, 'userId' | 'title' | 'isCompleted' | 'createdAt'> {
   return {
+    userId,
     title,
     isCompleted,
     createdAt: new Date(),

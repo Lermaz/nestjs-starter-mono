@@ -4,9 +4,12 @@ import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { CommonModule } from '../common/common.module';
+import { DomainExceptionFilter } from '../common/filters/domain-exception.filter';
 import { HttpExceptionFilter } from '../common/filters/http-exception.filter';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { LoggingInterceptor } from '../common/interceptors/logging.interceptor';
 import { RequestIdMiddleware } from '../common/middleware/request-id.middleware';
+import { AuthModule } from '../modules/auth/auth.module';
 import { appConfig } from './config/app.config';
 import { authConfig } from './config/auth.config';
 import { databaseConfig } from './config/database.config';
@@ -30,8 +33,13 @@ import { DatabaseModule } from './database/database.module';
     ]),
     DatabaseModule,
     CommonModule,
+    AuthModule,
   ],
   providers: [
+    {
+      provide: APP_FILTER,
+      useExisting: DomainExceptionFilter,
+    },
     {
       provide: APP_FILTER,
       useExisting: HttpExceptionFilter,
@@ -43,6 +51,10 @@ import { DatabaseModule } from './database/database.module';
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
     },
   ],
 })

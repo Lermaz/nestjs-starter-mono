@@ -24,8 +24,8 @@ describe('TodosService', () => {
   beforeEach(async () => {
     mockTodoRepository = {
       save: jest.fn(),
-      findAll: jest.fn(),
-      findById: jest.fn(),
+      findAllByUserId: jest.fn(),
+      findByIdForUser: jest.fn(),
       count: jest.fn(),
     };
     mockEventEmitter = {
@@ -50,8 +50,9 @@ describe('TodosService', () => {
   describe('createTodo', () => {
     it('should create a todo and emit integration event', async () => {
       mockTodoRepository.save.mockResolvedValue(inputTodo);
-      const actualResult = await todosService.createTodo('Test todo');
+      const actualResult = await todosService.createTodo('user-1', 'Test todo');
       expect(mockTodoRepository.save.mock.calls[0]).toEqual([
+        'user-1',
         'Test todo',
         false,
       ]);
@@ -65,8 +66,8 @@ describe('TodosService', () => {
 
   describe('findAllTodos', () => {
     it('should return todos from repository', async () => {
-      mockTodoRepository.findAll.mockResolvedValue([inputTodo]);
-      const actualResult = await todosService.findAllTodos();
+      mockTodoRepository.findAllByUserId.mockResolvedValue([inputTodo]);
+      const actualResult = await todosService.findAllTodos('user-1');
       expect(actualResult).toHaveLength(1);
       expect(actualResult[0].id).toBe(inputTodo.id);
     });
@@ -74,16 +75,16 @@ describe('TodosService', () => {
 
   describe('findTodoById', () => {
     it('should return a todo when found', async () => {
-      mockTodoRepository.findById.mockResolvedValue(inputTodo);
-      const actualResult = await todosService.findTodoById('todo-1');
+      mockTodoRepository.findByIdForUser.mockResolvedValue(inputTodo);
+      const actualResult = await todosService.findTodoById('user-1', 'todo-1');
       expect(actualResult.id).toBe('todo-1');
     });
 
     it('should throw NotFoundException when todo is missing', async () => {
-      mockTodoRepository.findById.mockResolvedValue(null);
-      await expect(todosService.findTodoById('missing')).rejects.toThrow(
-        NotFoundException,
-      );
+      mockTodoRepository.findByIdForUser.mockResolvedValue(null);
+      await expect(
+        todosService.findTodoById('user-1', 'missing'),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 

@@ -6,6 +6,7 @@ describe('todo.mapper', () => {
     it('should map entity fields to domain todo', () => {
       const inputEntity: TodoEntity = {
         id: 'todo-1',
+        userId: 'user-1',
         title: 'Test todo',
         isCompleted: true,
         createdAt: new Date('2026-01-01T00:00:00.000Z'),

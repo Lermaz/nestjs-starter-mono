@@ -8,7 +8,7 @@ One sentence per module — what it owns and what it does not own.
 | **DatabaseModule** | MikroORM root connection and schema bootstrap |
 | **CommonModule** | Shared cross-cutting providers (filters, interceptors, event listeners) consumed by Core |
 | **HealthModule** | Liveness/readiness HTTP endpoints and operational smoke checks |
-| **AuthModule** | User registration/login, JWT issuance, and the `users` table |
+| **AuthModule** | User registration/login, JWT issuance, `AuthPublicApi`, and the `users` table |
 | **TodosModule** | Todo persistence, CRUD API, and the `todos` table |
 
 ## Module public API docs

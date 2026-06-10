@@ -9,6 +9,9 @@ export class TodoEntity {
   @PrimaryKey({ type: 'uuid' })
   id: string = randomUUID();
 
+  @Property({ type: 'uuid' })
+  userId!: string;
+
   @Property({ type: 'string', length: 255 })
   title!: string;
 

@@ -5,7 +5,9 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { CurrentUser } from '../../../common/decorators/current-user.decorator';
 import { Public } from '../../../common/decorators/public.decorator';
+import type { AuthTokenPayload } from '../../auth/public/auth-token-payload';
 import { TodosService } from '../application/todos.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { TodoResponseDto } from './dto/todo-response.dto';
@@ -37,8 +39,12 @@ export class TodosController {
   @Post()
   @ApiOperation({ summary: 'Create a new todo' })
   @ApiResponse({ status: 201, type: TodoResponseDto })
-  async createTodo(@Body() input: CreateTodoDto): Promise<TodoResponseDto> {
+  async createTodo(
+    @CurrentUser() user: AuthTokenPayload,
+    @Body() input: CreateTodoDto,
+  ): Promise<TodoResponseDto> {
     const todo = await this.todosService.createTodo(
+      user.userId,
       input.title,
       input.isCompleted ?? false,
     );
@@ -51,8 +57,10 @@ export class TodosController {
   @Get()
   @ApiOperation({ summary: 'List all todos' })
   @ApiResponse({ status: 200, type: TodoResponseDto, isArray: true })
-  async findAllTodos(): Promise<TodoResponseDto[]> {
-    const todos = await this.todosService.findAllTodos();
+  async findAllTodos(
+    @CurrentUser() user: AuthTokenPayload,
+  ): Promise<TodoResponseDto[]> {
+    const todos = await this.todosService.findAllTodos(user.userId);
     return todos.map((todo) => toTodoResponseDto(todo));
   }
 
@@ -62,8 +70,11 @@ export class TodosController {
   @Get(':id')
   @ApiOperation({ summary: 'Get a todo by id' })
   @ApiResponse({ status: 200, type: TodoResponseDto })
-  async findTodoById(@Param('id') id: string): Promise<TodoResponseDto> {
-    const todo = await this.todosService.findTodoById(id);
+  async findTodoById(
+    @CurrentUser() user: AuthTokenPayload,
+    @Param('id') id: string,
+  ): Promise<TodoResponseDto> {
+    const todo = await this.todosService.findTodoById(user.userId, id);
     return toTodoResponseDto(todo);
   }
 }

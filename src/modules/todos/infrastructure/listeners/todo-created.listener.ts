@@ -1,20 +1,19 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-
-interface TodoCreatedPayload {
-  readonly id: string;
-  readonly title: string;
-}
+import {
+  TODO_CREATED_EVENT,
+  TodoCreatedEvent,
+} from '../../application/events/todo-created.event';
 
 /**
- * Handles todo integration events for cross-cutting side effects.
+ * Handles todo integration events for module-local side effects.
  */
 @Injectable()
 export class TodoCreatedListener {
   private readonly logger = new Logger(TodoCreatedListener.name);
 
-  @OnEvent('todo.created')
-  handleTodoCreated(payload: TodoCreatedPayload): void {
+  @OnEvent(TODO_CREATED_EVENT)
+  handleTodoCreated(payload: TodoCreatedEvent): void {
     this.logger.log(`Todo created: ${payload.id} - ${payload.title}`);
   }
 }

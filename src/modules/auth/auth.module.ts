@@ -1,15 +1,14 @@
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { AuthConfig } from '../../core/config/auth.config';
 import { AuthService } from './application/auth.service';
 import { USER_REPOSITORY } from './application/ports/user.repository.port';
 import { UserEntity } from './infrastructure/entities/user.entity';
 import { MikroUserRepository } from './infrastructure/repositories/mikro-user.repository';
+import { AuthPublicApi } from './public/auth-public.api';
 import { AuthController } from './presentation/auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 
@@ -44,16 +43,13 @@ import { JwtStrategy } from './strategies/jwt.strategy';
   controllers: [AuthController],
   providers: [
     AuthService,
+    AuthPublicApi,
     JwtStrategy,
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard,
-    },
     {
       provide: USER_REPOSITORY,
       useClass: MikroUserRepository,
     },
   ],
-  exports: [AuthService, JwtModule],
+  exports: [AuthPublicApi, JwtModule],
 })
 export class AuthModule {}

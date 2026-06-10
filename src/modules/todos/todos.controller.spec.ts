@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { AuthTokenPayload } from '../auth/public/auth-token-payload';
 import { Todo } from './domain/todo.model';
 import { TodosService } from './application/todos.service';
 import { TodosController } from './presentation/todos.controller';
@@ -11,6 +12,11 @@ describe('TodosController', () => {
       'createTodo' | 'findAllTodos' | 'findTodoById' | 'getTestResponse'
     >
   >;
+
+  const inputUser: AuthTokenPayload = {
+    userId: 'user-1',
+    email: 'user@example.com',
+  };
 
   const expectedTodo: Todo = {
     id: 'todo-1',
@@ -48,10 +54,11 @@ describe('TodosController', () => {
   describe('createTodo', () => {
     it('should delegate to service and map response', async () => {
       mockTodosService.createTodo.mockResolvedValue(expectedTodo);
-      const actualResult = await todosController.createTodo({
+      const actualResult = await todosController.createTodo(inputUser, {
         title: 'Test todo',
       });
       expect(mockTodosService.createTodo).toHaveBeenCalledWith(
+        'user-1',
         'Test todo',
         false,
       );
@@ -62,7 +69,7 @@ describe('TodosController', () => {
   describe('findAllTodos', () => {
     it('should delegate to service and map responses', async () => {
       mockTodosService.findAllTodos.mockResolvedValue([expectedTodo]);
-      const actualResult = await todosController.findAllTodos();
+      const actualResult = await todosController.findAllTodos(inputUser);
       expect(actualResult).toEqual([expectedTodo]);
     });
   });
@@ -70,7 +77,10 @@ describe('TodosController', () => {
   describe('findTodoById', () => {
     it('should delegate to service and map response', async () => {
       mockTodosService.findTodoById.mockResolvedValue(expectedTodo);
-      const actualResult = await todosController.findTodoById('todo-1');
+      const actualResult = await todosController.findTodoById(
+        inputUser,
+        'todo-1',
+      );
       expect(actualResult).toEqual(expectedTodo);
     });
   });
