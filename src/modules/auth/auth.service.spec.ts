@@ -1,5 +1,4 @@
 import { ConfigService } from '@nestjs/config';
-import { DomainError } from '../../common/errors/domain.error';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 
@@ -9,6 +8,7 @@ jest.mock('bcrypt', () => ({
 }));
 
 import * as bcrypt from 'bcrypt';
+import { DomainError } from '../../common/errors/domain.error';
 import { User } from './domain/user.model';
 import { AuthService } from './application/auth.service';
 import {
@@ -67,17 +67,37 @@ describe('AuthService', () => {
         'user@example.com',
         'password123',
       );
-      expect(actualResult).toEqual({ accessToken: 'test-token' });
-      expect(mockUserRepository.save.mock.calls[0]?.[0]).toBe(
-        'user@example.com',
-      );
+      expect(actualResult.ok).toBe(true);
+      if (actualResult.ok) {
+        expect(actualResult.value).toEqual({ accessToken: 'test-token' });
+      }
+      expect(mockUserRepository.save.mock.calls[0]?.[0]).toEqual({
+        email: 'user@example.com',
+        passwordHash: 'hashed-password',
+      });
     });
 
-    it('should throw DomainError when email exists', async () => {
+    it('should return DomainError when email exists', async () => {
       mockUserRepository.findByEmail.mockResolvedValue(inputUser);
-      await expect(
-        authService.register('user@example.com', 'password123'),
-      ).rejects.toThrow(DomainError);
+      const actualResult = await authService.register(
+        'user@example.com',
+        'password123',
+      );
+      expect(actualResult.ok).toBe(false);
+      if (!actualResult.ok) {
+        expect(actualResult.error).toBeInstanceOf(DomainError);
+      }
+    });
+
+    it('should return DomainError when password is too short', async () => {
+      const actualResult = await authService.register(
+        'user@example.com',
+        'short',
+      );
+      expect(actualResult.ok).toBe(false);
+      if (!actualResult.ok) {
+        expect(actualResult.error).toBeInstanceOf(DomainError);
+      }
     });
   });
 
@@ -89,22 +109,35 @@ describe('AuthService', () => {
         'user@example.com',
         'password123',
       );
-      expect(actualResult).toEqual({ accessToken: 'test-token' });
+      expect(actualResult.ok).toBe(true);
+      if (actualResult.ok) {
+        expect(actualResult.value).toEqual({ accessToken: 'test-token' });
+      }
     });
 
-    it('should throw DomainError for unknown user', async () => {
+    it('should return DomainError for unknown user', async () => {
       mockUserRepository.findByEmail.mockResolvedValue(null);
-      await expect(
-        authService.login('user@example.com', 'password123'),
-      ).rejects.toThrow(DomainError);
+      const actualResult = await authService.login(
+        'user@example.com',
+        'password123',
+      );
+      expect(actualResult.ok).toBe(false);
+      if (!actualResult.ok) {
+        expect(actualResult.error).toBeInstanceOf(DomainError);
+      }
     });
 
-    it('should throw DomainError for invalid password', async () => {
+    it('should return DomainError for invalid password', async () => {
       mockUserRepository.findByEmail.mockResolvedValue(inputUser);
       jest.mocked(bcrypt.compare).mockResolvedValue(false as never);
-      await expect(
-        authService.login('user@example.com', 'wrong-password'),
-      ).rejects.toThrow(DomainError);
+      const actualResult = await authService.login(
+        'user@example.com',
+        'wrong-password',
+      );
+      expect(actualResult.ok).toBe(false);
+      if (!actualResult.ok) {
+        expect(actualResult.error).toBeInstanceOf(DomainError);
+      }
     });
   });
 });

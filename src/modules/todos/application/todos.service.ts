@@ -4,6 +4,8 @@ import {
   Injectable,
 } from '../../../common/nest/application.decorators';
 import { DomainError } from '../../../common/errors/domain.error';
+import { err, ok } from '../../../common/result/result.helpers';
+import type { Result } from '../../../common/result/result';
 import { createTodoProps } from '../domain/todo.factory';
 import { Todo } from '../domain/todo.model';
 import {
@@ -31,22 +33,24 @@ export class TodosService {
     userId: string,
     title: string,
     isCompleted = false,
-  ): Promise<Todo> {
-    const props = createTodoProps(title, isCompleted);
-    const todo = await this.todoRepository.save(
+  ): Promise<Result<Todo, DomainError>> {
+    const propsResult = createTodoProps(title, isCompleted);
+    if (!propsResult.ok) {
+      return propsResult;
+    }
+    const todo = await this.todoRepository.save({
       userId,
-      props.title,
-      props.isCompleted,
-    );
+      props: propsResult.value,
+    });
     this.eventEmitter.emit(
       TODO_CREATED_EVENT,
       new TodoCreatedEvent(todo.id, todo.title),
     );
-    return todo;
+    return ok(todo);
   }
 
   /**
-   * Returns all todos.
+   * Returns all todos for a user.
    */
   async findAllTodos(userId: string): Promise<Todo[]> {
     return this.todoRepository.findAllByUserId(userId);
@@ -55,12 +59,15 @@ export class TodosService {
   /**
    * Returns a single todo by id for the given user.
    */
-  async findTodoById(userId: string, id: string): Promise<Todo> {
+  async findTodoById(
+    userId: string,
+    id: string,
+  ): Promise<Result<Todo, DomainError>> {
     const todo = await this.todoRepository.findByIdForUser(userId, id);
     if (!todo) {
-      throw new DomainError(`Todo with id "${id}" not found`, 404);
+      return err(new DomainError(`Todo with id "${id}" not found`, 404));
     }
-    return todo;
+    return ok(todo);
   }
 
   /**

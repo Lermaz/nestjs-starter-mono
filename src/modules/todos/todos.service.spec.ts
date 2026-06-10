@@ -1,6 +1,7 @@
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { DomainError } from '../../common/errors/domain.error';
 import { Test, TestingModule } from '@nestjs/testing';
+import { DomainError } from '../../common/errors/domain.error';
+import { ok } from '../../common/result/result.helpers';
 import { Todo } from './domain/todo.model';
 import {
   TODO_REPOSITORY,
@@ -51,16 +52,28 @@ describe('TodosService', () => {
     it('should create a todo and emit integration event', async () => {
       mockTodoRepository.save.mockResolvedValue(inputTodo);
       const actualResult = await todosService.createTodo('user-1', 'Test todo');
+      expect(actualResult.ok).toBe(true);
       expect(mockTodoRepository.save.mock.calls[0]).toEqual([
-        'user-1',
-        'Test todo',
-        false,
+        {
+          userId: 'user-1',
+          props: { title: 'Test todo', isCompleted: false },
+        },
       ]);
-      expect(actualResult).toEqual(inputTodo);
+      if (actualResult.ok) {
+        expect(actualResult.value).toEqual(inputTodo);
+      }
       expect(mockEventEmitter.emit).toHaveBeenCalledWith(
         TODO_CREATED_EVENT,
         expect.objectContaining({ id: inputTodo.id, title: inputTodo.title }),
       );
+    });
+
+    it('should return DomainError when title is empty', async () => {
+      const actualResult = await todosService.createTodo('user-1', '   ');
+      expect(actualResult.ok).toBe(false);
+      if (!actualResult.ok) {
+        expect(actualResult.error).toBeInstanceOf(DomainError);
+      }
     });
   });
 
@@ -77,14 +90,16 @@ describe('TodosService', () => {
     it('should return a todo when found', async () => {
       mockTodoRepository.findByIdForUser.mockResolvedValue(inputTodo);
       const actualResult = await todosService.findTodoById('user-1', 'todo-1');
-      expect(actualResult.id).toBe('todo-1');
+      expect(actualResult).toEqual(ok(inputTodo));
     });
 
-    it('should throw DomainError when todo is missing', async () => {
+    it('should return DomainError when todo is missing', async () => {
       mockTodoRepository.findByIdForUser.mockResolvedValue(null);
-      await expect(
-        todosService.findTodoById('user-1', 'missing'),
-      ).rejects.toThrow(DomainError);
+      const actualResult = await todosService.findTodoById('user-1', 'missing');
+      expect(actualResult.ok).toBe(false);
+      if (!actualResult.ok) {
+        expect(actualResult.error).toBeInstanceOf(DomainError);
+      }
     });
   });
 
