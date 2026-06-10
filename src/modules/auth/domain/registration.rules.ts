@@ -6,6 +6,6 @@ import { User } from './user.model';
  */
 export function assertEmailAvailable(existingUser: User | null): void {
   if (existingUser) {
-    throw new DomainError('Email is already registered');
+    throw new DomainError('Email is already registered', 409);
   }
 }
