@@ -6,16 +6,16 @@ Built as a reference implementation for clean architecture in a single deployabl
 
 ## Tech stack
 
-| Layer | Choice |
-|-------|--------|
-| Runtime | Node.js 22, TypeScript 5 |
-| Framework | NestJS 11 |
-| ORM | MikroORM 7 (SQLite) |
-| Auth | JWT (Passport), bcrypt |
-| Validation | class-validator, class-transformer |
-| API docs | Swagger (dev / opt-in prod) |
-| Security | helmet, CORS, rate limiting, env validation |
-| Tooling | pnpm, ESLint, Prettier, dependency-cruiser, Jest |
+| Layer      | Choice                                           |
+| ---------- | ------------------------------------------------ |
+| Runtime    | Node.js 22, TypeScript 5                         |
+| Framework  | NestJS 11                                        |
+| ORM        | MikroORM 7 (SQLite)                              |
+| Auth       | JWT (Passport), bcrypt                           |
+| Validation | class-validator, class-transformer               |
+| API docs   | Swagger (dev / opt-in prod)                      |
+| Security   | helmet, CORS, rate limiting, env validation      |
+| Tooling    | pnpm, ESLint, Prettier, dependency-cruiser, Jest |
 
 ## Architecture
 
@@ -46,8 +46,6 @@ modules/<feature>/
 
 Further reading:
 
-- [Architecture improvement plan](docs/architecture-improvement-plan.md)
-- [Modular NestJS roadmap](docs/modular-nestjs-roadmap.md)
 - [Module ownership](docs/module-ownership.md)
 - [Scale path](docs/scale-path.md)
 
@@ -55,33 +53,33 @@ Further reading:
 
 ### Auth (`/auth`)
 
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
+| Method | Path             | Auth   | Description                   |
+| ------ | ---------------- | ------ | ----------------------------- |
 | `POST` | `/auth/register` | Public | Register; returns JWT (5/min) |
-| `POST` | `/auth/login` | Public | Login; returns JWT (5/min) |
+| `POST` | `/auth/login`    | Public | Login; returns JWT (5/min)    |
 
 ### Todos (`/todos`)
 
 All todo routes require `Authorization: Bearer <token>`. Todos are scoped to the authenticated user.
 
-| Method | Path | Description |
-|--------|------|-------------|
-| `POST` | `/todos` | Create todo (30/min) |
-| `GET` | `/todos` | List with cursor pagination (`?cursor=&limit=`, default 20) |
-| `GET` | `/todos/:id` | Get by id (owner only) |
-| `PATCH` | `/todos/:id` | Partial update (30/min) |
-| `DELETE` | `/todos/:id` | Delete (30/min, 204) |
+| Method   | Path         | Description                                                 |
+| -------- | ------------ | ----------------------------------------------------------- |
+| `POST`   | `/todos`     | Create todo (30/min)                                        |
+| `GET`    | `/todos`     | List with cursor pagination (`?cursor=&limit=`, default 20) |
+| `GET`    | `/todos/:id` | Get by id (owner only)                                      |
+| `PATCH`  | `/todos/:id` | Partial update (30/min)                                     |
+| `DELETE` | `/todos/:id` | Delete (30/min, 204)                                        |
 
 `GET /todos` returns `{ items, nextCursor }`.
 
 ### Health
 
-| Method | Path | Description |
-|--------|------|-------------|
-| `GET` | `/` | Liveness |
-| `GET` | `/health/ready` | Readiness + database connectivity |
-| `GET` | `/health/test` | Module smoke test (non-production only) |
-| `GET` | `/todos/admin/test` | Module smoke test (non-production only) |
+| Method | Path                | Description                             |
+| ------ | ------------------- | --------------------------------------- |
+| `GET`  | `/`                 | Liveness                                |
+| `GET`  | `/health/ready`     | Readiness + database connectivity       |
+| `GET`  | `/health/test`      | Module smoke test (non-production only) |
+| `GET`  | `/todos/admin/test` | Module smoke test (non-production only) |
 
 ### Error shape
 
@@ -130,16 +128,16 @@ pnpm start:dev
 
 ### Environment variables
 
-| Variable | Required (prod) | Description |
-|----------|-----------------|-------------|
-| `JWT_SECRET` | Yes | Signing key; must not be the default placeholder |
-| `DATABASE_URL` | Yes | SQLite path, e.g. `sqlite://./data/app.db` |
-| `NODE_ENV` | No | `development` (default) or `production` |
-| `PORT` | No | HTTP port (default `3000`) |
-| `CORS_ORIGINS` | No | Comma-separated allowed origins |
-| `ENABLE_SWAGGER` | No | Set `true` to expose `/docs` in production |
-| `JWT_EXPIRES_IN` | No | Token lifetime (default `1d`) |
-| `BCRYPT_ROUNDS` | No | bcrypt cost factor (default `10`) |
+| Variable         | Required (prod) | Description                                      |
+| ---------------- | --------------- | ------------------------------------------------ |
+| `JWT_SECRET`     | Yes             | Signing key; must not be the default placeholder |
+| `DATABASE_URL`   | Yes             | SQLite path, e.g. `sqlite://./data/app.db`       |
+| `NODE_ENV`       | No              | `development` (default) or `production`          |
+| `PORT`           | No              | HTTP port (default `3000`)                       |
+| `CORS_ORIGINS`   | No              | Comma-separated allowed origins                  |
+| `ENABLE_SWAGGER` | No              | Set `true` to expose `/docs` in production       |
+| `JWT_EXPIRES_IN` | No              | Token lifetime (default `1d`)                    |
+| `BCRYPT_ROUNDS`  | No              | bcrypt cost factor (default `10`)                |
 
 ## Docker
 
@@ -160,19 +158,19 @@ docker run -p 3000:3000 --env-file .env nestjs-starter-mono
 
 ## Scripts
 
-| Command | Description |
-|---------|-------------|
-| `pnpm start:dev` | Dev server with watch |
-| `pnpm start:prod` | Run compiled `dist/main.js` |
-| `pnpm build` | Compile TypeScript |
-| `pnpm lint` | ESLint |
-| `pnpm test` | Unit tests (Jest) |
-| `pnpm test:e2e` | End-to-end tests |
-| `pnpm test:cov` | Coverage report |
-| `pnpm arch:check` | dependency-cruiser boundary rules |
-| `pnpm migration:create` | Generate MikroORM migration |
-| `pnpm migration:up` | Apply pending migrations |
-| `pnpm migration:down` | Revert last migration |
+| Command                 | Description                       |
+| ----------------------- | --------------------------------- |
+| `pnpm start:dev`        | Dev server with watch             |
+| `pnpm start:prod`       | Run compiled `dist/main.js`       |
+| `pnpm build`            | Compile TypeScript                |
+| `pnpm lint`             | ESLint                            |
+| `pnpm test`             | Unit tests (Jest)                 |
+| `pnpm test:e2e`         | End-to-end tests                  |
+| `pnpm test:cov`         | Coverage report                   |
+| `pnpm arch:check`       | dependency-cruiser boundary rules |
+| `pnpm migration:create` | Generate MikroORM migration       |
+| `pnpm migration:up`     | Apply pending migrations          |
+| `pnpm migration:down`   | Revert last migration             |
 
 ## CI pipeline
 
