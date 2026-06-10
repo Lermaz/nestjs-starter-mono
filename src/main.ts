@@ -17,6 +17,7 @@ async function bootstrap(): Promise<void> {
     port: 3000,
     nodeEnv: 'development',
     corsOrigins: [],
+    isSwaggerEnabled: true,
   });
   configureHttpSecurity(app, appConfig);
   app.useGlobalPipes(
@@ -25,15 +26,17 @@ async function bootstrap(): Promise<void> {
       transform: true,
     }),
   );
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle('NestJS Starter')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
-  const document = SwaggerModule.createDocument(app, swaggerConfig, {
-    extraModels: [ApiErrorResponseDto],
-  });
-  SwaggerModule.setup('docs', app, document);
+  if (appConfig.isSwaggerEnabled) {
+    const swaggerConfig = new DocumentBuilder()
+      .setTitle('NestJS Starter')
+      .setVersion('1.0')
+      .addBearerAuth()
+      .build();
+    const document = SwaggerModule.createDocument(app, swaggerConfig, {
+      extraModels: [ApiErrorResponseDto],
+    });
+    SwaggerModule.setup('docs', app, document);
+  }
   await app.listen(appConfig.port);
 }
 void bootstrap();
