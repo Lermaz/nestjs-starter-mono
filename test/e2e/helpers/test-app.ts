@@ -1,5 +1,6 @@
 import { createRequire } from 'node:module';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { App } from 'supertest/types';
@@ -39,7 +40,22 @@ export async function createTestApp(): Promise<INestApplication<App>> {
   const moduleFixture: TestingModule = await Test.createTestingModule({
     imports: [AppModule],
   }).compile();
-  const app = moduleFixture.createNestApplication();
+  const { configureHttpSecurity } = nodeRequire(
+    '../../../dist/core/http/configure-http',
+  ) as {
+    configureHttpSecurity: (
+      app: INestApplication,
+      config: { port: number; nodeEnv: string; corsOrigins: readonly string[] },
+    ) => void;
+  };
+  const app = moduleFixture.createNestApplication<NestExpressApplication>({
+    bodyParser: false,
+  });
+  configureHttpSecurity(app, {
+    port: 3000,
+    nodeEnv: 'test',
+    corsOrigins: [],
+  });
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

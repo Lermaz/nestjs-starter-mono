@@ -19,7 +19,7 @@ export function configureHttpSecurity(
   expressApp.use(urlencoded({ extended: true, limit: JSON_BODY_LIMIT }));
   if (config.corsOrigins.length > 0) {
     expressApp.enableCors({
-      origin: config.corsOrigins,
+      origin: [...config.corsOrigins],
       credentials: true,
     });
   }

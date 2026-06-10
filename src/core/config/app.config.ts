@@ -3,6 +3,17 @@ import { registerAs } from '@nestjs/config';
 const DEFAULT_PORT = 3000;
 const PRODUCTION_NODE_ENV = 'production';
 
+/**
+ * Resolves whether Swagger should be exposed for the current environment.
+ */
+export function resolveSwaggerEnabled(
+  nodeEnv: string,
+  enableSwagger: string | undefined,
+): boolean {
+  const isProduction = nodeEnv === PRODUCTION_NODE_ENV;
+  return !isProduction || enableSwagger === 'true';
+}
+
 export interface AppConfig {
   readonly port: number;
   readonly nodeEnv: string;
@@ -28,12 +39,13 @@ export function parseCorsOrigins(rawOrigins: string | undefined): string[] {
  */
 export const appConfig = registerAs('app', (): AppConfig => {
   const nodeEnv = process.env.NODE_ENV ?? 'development';
-  const isProduction = nodeEnv === PRODUCTION_NODE_ENV;
-  const isSwaggerExplicitlyEnabled = process.env.ENABLE_SWAGGER === 'true';
   return {
     port: parseInt(process.env.PORT ?? String(DEFAULT_PORT), 10),
     nodeEnv,
     corsOrigins: parseCorsOrigins(process.env.CORS_ORIGINS),
-    isSwaggerEnabled: !isProduction || isSwaggerExplicitlyEnabled,
+    isSwaggerEnabled: resolveSwaggerEnabled(
+      nodeEnv,
+      process.env.ENABLE_SWAGGER,
+    ),
   };
 });

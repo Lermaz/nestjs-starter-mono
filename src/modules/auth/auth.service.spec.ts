@@ -71,7 +71,7 @@ describe('AuthService', () => {
       if (actualResult.ok) {
         expect(actualResult.value).toEqual({ accessToken: 'test-token' });
       }
-      expect(mockUserRepository.findByEmail).toHaveBeenCalledWith(
+      expect(mockUserRepository.findByEmail.mock.calls[0]?.[0]).toBe(
         'user@example.com',
       );
       expect(mockUserRepository.save.mock.calls[0]?.[0]).toEqual({

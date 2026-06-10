@@ -47,8 +47,7 @@ export class AuthService {
     if (!passwordResult.ok) {
       return passwordResult;
     }
-    const existingUser =
-      await this.userRepository.findByEmail(normalizedEmail);
+    const existingUser = await this.userRepository.findByEmail(normalizedEmail);
     const emailResult = assertEmailAvailable(existingUser);
     if (!emailResult.ok) {
       return emailResult;

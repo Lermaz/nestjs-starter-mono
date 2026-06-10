@@ -1,4 +1,4 @@
-import { parseCorsOrigins } from './app.config';
+import { parseCorsOrigins, resolveSwaggerEnabled } from './app.config';
 
 describe('parseCorsOrigins', () => {
   it('should return empty array when unset', () => {
@@ -13,29 +13,16 @@ describe('parseCorsOrigins', () => {
   });
 });
 
-describe('appConfig swagger flag', () => {
-  const originalNodeEnv = process.env.NODE_ENV;
-  const originalEnableSwagger = process.env.ENABLE_SWAGGER;
-
-  afterEach(() => {
-    process.env.NODE_ENV = originalNodeEnv;
-    process.env.ENABLE_SWAGGER = originalEnableSwagger;
-    jest.resetModules();
+describe('resolveSwaggerEnabled', () => {
+  it('should enable Swagger outside production', () => {
+    expect(resolveSwaggerEnabled('development', undefined)).toBe(true);
   });
 
-  it('should disable Swagger in production by default', async () => {
-    process.env.NODE_ENV = 'production';
-    delete process.env.ENABLE_SWAGGER;
-    const { appConfig } = await import('./app.config');
-    const actualConfig = appConfig();
-    expect(actualConfig.isSwaggerEnabled).toBe(false);
+  it('should disable Swagger in production by default', () => {
+    expect(resolveSwaggerEnabled('production', undefined)).toBe(false);
   });
 
-  it('should enable Swagger in production when explicitly set', async () => {
-    process.env.NODE_ENV = 'production';
-    process.env.ENABLE_SWAGGER = 'true';
-    const { appConfig } = await import('./app.config');
-    const actualConfig = appConfig();
-    expect(actualConfig.isSwaggerEnabled).toBe(true);
+  it('should enable Swagger in production when explicitly set', () => {
+    expect(resolveSwaggerEnabled('production', 'true')).toBe(true);
   });
 });
