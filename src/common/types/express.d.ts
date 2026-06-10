@@ -1,4 +1,4 @@
-import { AuthTokenPayload } from '../../modules/auth/application/auth.service';
+import { AuthTokenPayload } from '../../modules/auth/public/auth-token-payload';
 
 export {};
 

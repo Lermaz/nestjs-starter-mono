@@ -9,13 +9,9 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { AuthConfig } from '../../../core/config/auth.config';
 import { assertEmailAvailable } from '../domain/registration.rules';
+import { AuthTokenPayload } from '../public/auth-token-payload';
 import { USER_REPOSITORY } from './ports/user.repository.port';
 import type { UserRepositoryPort } from './ports/user.repository.port';
-
-export interface AuthTokenPayload {
-  readonly userId: string;
-  readonly email: string;
-}
 
 /**
  * Application service for authentication operations.

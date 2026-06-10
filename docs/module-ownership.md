@@ -11,6 +11,12 @@ One sentence per module — what it owns and what it does not own.
 | **AuthModule** | User registration/login, JWT issuance, and the `users` table |
 | **TodosModule** | Todo persistence, CRUD API, and the `todos` table |
 
+## Module public API docs
+
+- [TodosModule](../src/modules/todos/README.md)
+- [AuthModule](../src/modules/auth/README.md)
+- [HealthModule](../src/modules/health/README.md)
+
 ## Rules
 
 - Cross-module calls go through a module's `public/` facade exported via `exports`.
