@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { NonProductionGuard } from '../../common/guards/non-production.guard';
 import { ok } from '../../common/result/result.helpers';
 import type { AuthTokenPayload } from '../auth/public';
 import { Todo } from './domain/todo.model';
@@ -48,7 +49,10 @@ describe('TodosController', () => {
           useValue: mockTodosService,
         },
       ],
-    }).compile();
+    })
+      .overrideGuard(NonProductionGuard)
+      .useValue({ canActivate: (): boolean => true })
+      .compile();
     todosController = app.get<TodosController>(TodosController);
   });
 

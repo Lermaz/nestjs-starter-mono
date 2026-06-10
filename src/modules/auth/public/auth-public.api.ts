@@ -17,10 +17,10 @@ export class AuthPublicApi {
    * Validates that a user exists and returns the token payload shape.
    */
   async validateUser(userId: string): Promise<AuthTokenPayload | null> {
-    const user = await this.userRepository.findById(userId);
-    if (!user) {
+    const identity = await this.userRepository.findIdentityById(userId);
+    if (!identity) {
       return null;
     }
-    return { userId: user.id, email: user.email };
+    return { userId: identity.id, email: identity.email };
   }
 }

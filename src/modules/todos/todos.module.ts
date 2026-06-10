@@ -1,5 +1,6 @@
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
+import { CommonModule } from '../../common/common.module';
 import { TODO_REPOSITORY } from './application/ports/todo.repository.port';
 import { TodosService } from './application/todos.service';
 import { TodoEntity } from './infrastructure/entities/todo.entity';
@@ -12,7 +13,7 @@ import { TodosController } from './presentation/todos.controller';
  * Todos feature module with CRUD endpoints and repository pattern.
  */
 @Module({
-  imports: [MikroOrmModule.forFeature([TodoEntity])],
+  imports: [CommonModule, MikroOrmModule.forFeature([TodoEntity])],
   controllers: [TodosController],
   providers: [
     TodosService,

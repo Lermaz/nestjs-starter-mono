@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -19,6 +20,7 @@ import { Throttle } from '@nestjs/throttler';
 import { ApiStandardErrors } from '../../../common/decorators/api-error-responses.decorator';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
 import { Public } from '../../../common/decorators/public.decorator';
+import { NonProductionGuard } from '../../../common/guards/non-production.guard';
 import { unwrapDomainResult } from '../../../common/result';
 import type { AuthTokenPayload } from '../../auth/public';
 import { TodosService } from '../application/todos.service';
@@ -47,6 +49,7 @@ export class TodosController {
    * Smoke test endpoint for todos module verification.
    */
   @Public()
+  @UseGuards(NonProductionGuard)
   @Get('admin/test')
   @ApiOperation({ summary: 'Todos module smoke test' })
   @ApiResponse({ status: 200, description: 'OK status' })

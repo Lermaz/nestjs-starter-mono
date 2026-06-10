@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { NonProductionGuard } from '../../common/guards/non-production.guard';
 import { DATABASE_HEALTH } from '../../core/database/ports/database-health.port';
 import { HealthService } from './application/health.service';
 import { HealthController } from './presentation/health.controller';
@@ -20,7 +21,10 @@ describe('HealthController', () => {
           useValue: mockDatabaseHealth,
         },
       ],
-    }).compile();
+    })
+      .overrideGuard(NonProductionGuard)
+      .useValue({ canActivate: (): boolean => true })
+      .compile();
     healthController = app.get<HealthController>(HealthController);
   });
 

@@ -34,16 +34,32 @@
 
 ## Docker
 
+Copy `.env.example` to `.env` and set a strong `JWT_SECRET` before starting.
+
 ```bash
+cp .env.example .env
+# Edit .env — JWT_SECRET is required in production
+
 # Build and run with Docker
 docker build -t nestjs-starter-mono .
-docker run -p 3000:3000 -e JWT_SECRET=your-secret nestjs-starter-mono
+docker run -p 3000:3000 --env-file .env nestjs-starter-mono
 
 # Or use docker-compose (persists SQLite in ./data)
 docker compose up --build
 ```
 
-API docs available at `http://localhost:3000/docs` when running.
+Swagger is at `http://localhost:3000/docs` in development. In production it is disabled unless `ENABLE_SWAGGER=true`.
+
+## Environment variables
+
+| Variable | Required (prod) | Description |
+|----------|-----------------|-------------|
+| `JWT_SECRET` | Yes | Signing key; must not be the default placeholder |
+| `DATABASE_URL` | Yes | SQLite path, e.g. `sqlite://./data/app.db` |
+| `CORS_ORIGINS` | No | Comma-separated allowed origins |
+| `ENABLE_SWAGGER` | No | Set `true` to expose `/docs` in production |
+| `JWT_EXPIRES_IN` | No | Token lifetime (default `1d`) |
+| `BCRYPT_ROUNDS` | No | bcrypt cost factor (default `10`) |
 
 ## Project setup
 

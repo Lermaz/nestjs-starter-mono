@@ -32,6 +32,7 @@ describe('AuthService', () => {
     mockUserRepository = {
       findByEmail: jest.fn(),
       findById: jest.fn(),
+      findIdentityById: jest.fn(),
       save: jest.fn(),
     };
     mockJwtService = {

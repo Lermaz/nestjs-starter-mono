@@ -1,5 +1,6 @@
 import { EntityManager } from '@mikro-orm/core';
 import { Injectable } from '@nestjs/common';
+import { UserIdentity } from '../../domain/user-identity.model';
 import { CreateUserProps, User } from '../../domain/user.model';
 import { UserRepositoryPort } from '../../application/ports/user.repository.port';
 import { UserEntity } from '../entities/user.entity';
@@ -26,6 +27,18 @@ export class MikroUserRepository implements UserRepositoryPort {
       return null;
     }
     return toDomainUser(entity);
+  }
+
+  async findIdentityById(id: string): Promise<UserIdentity | null> {
+    const entity = await this.entityManager.findOne(
+      UserEntity,
+      { id },
+      { fields: ['id', 'email'] },
+    );
+    if (!entity) {
+      return null;
+    }
+    return { id: entity.id, email: entity.email };
   }
 
   async save(props: CreateUserProps): Promise<User> {
