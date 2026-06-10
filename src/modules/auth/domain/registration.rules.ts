@@ -3,7 +3,9 @@ import type { Result } from '../../../common/result/result';
 import { DomainError } from './domain.error';
 import { User } from './user.model';
 
+export const INVALID_CREDENTIALS_MESSAGE = 'Invalid credentials';
 const MIN_PASSWORD_LENGTH = 8;
+const MAX_PASSWORD_LENGTH = 72;
 
 /**
  * Ensures a password meets registration policy.
@@ -18,6 +20,13 @@ export function assertPasswordMeetsPolicy(
       ),
     );
   }
+  if (password.length > MAX_PASSWORD_LENGTH) {
+    return err(
+      new DomainError(
+        `Password must be at most ${MAX_PASSWORD_LENGTH} characters`,
+      ),
+    );
+  }
   return ok(undefined);
 }
 
@@ -28,7 +37,7 @@ export function assertEmailAvailable(
   existingUser: User | null,
 ): Result<void, DomainError> {
   if (existingUser) {
-    return err(new DomainError('Email is already registered', 409));
+    return err(new DomainError(INVALID_CREDENTIALS_MESSAGE, 401));
   }
   return ok(undefined);
 }

@@ -64,20 +64,23 @@ describe('AuthService', () => {
       mockUserRepository.findByEmail.mockResolvedValue(null);
       mockUserRepository.save.mockResolvedValue(inputUser);
       const actualResult = await authService.register(
-        'user@example.com',
+        '  User@Example.COM  ',
         'password123',
       );
       expect(actualResult.ok).toBe(true);
       if (actualResult.ok) {
         expect(actualResult.value).toEqual({ accessToken: 'test-token' });
       }
+      expect(mockUserRepository.findByEmail.mock.calls[0]?.[0]).toBe(
+        'user@example.com',
+      );
       expect(mockUserRepository.save.mock.calls[0]?.[0]).toEqual({
         email: 'user@example.com',
         passwordHash: 'hashed-password',
       });
     });
 
-    it('should return DomainError when email exists', async () => {
+    it('should return generic credentials error when email exists', async () => {
       mockUserRepository.findByEmail.mockResolvedValue(inputUser);
       const actualResult = await authService.register(
         'user@example.com',
@@ -86,6 +89,8 @@ describe('AuthService', () => {
       expect(actualResult.ok).toBe(false);
       if (!actualResult.ok) {
         expect(actualResult.error).toBeInstanceOf(DomainError);
+        expect(actualResult.error.message).toBe('Invalid credentials');
+        expect(actualResult.error.statusCode).toBe(401);
       }
     });
 
@@ -93,6 +98,17 @@ describe('AuthService', () => {
       const actualResult = await authService.register(
         'user@example.com',
         'short',
+      );
+      expect(actualResult.ok).toBe(false);
+      if (!actualResult.ok) {
+        expect(actualResult.error).toBeInstanceOf(DomainError);
+      }
+    });
+
+    it('should return DomainError when password is too long', async () => {
+      const actualResult = await authService.register(
+        'user@example.com',
+        'a'.repeat(73),
       );
       expect(actualResult.ok).toBe(false);
       if (!actualResult.ok) {

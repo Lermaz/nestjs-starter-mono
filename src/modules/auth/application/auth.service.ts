@@ -9,9 +9,11 @@ import { DomainError } from '../../../common/errors/domain.error';
 import { err, ok } from '../../../common/result/result.helpers';
 import type { Result } from '../../../common/result/result';
 import { AuthConfig } from '../../../core/config/auth.config';
+import { normalizeEmail } from '../domain/email.normalization';
 import {
   assertEmailAvailable,
   assertPasswordMeetsPolicy,
+  INVALID_CREDENTIALS_MESSAGE,
 } from '../domain/registration.rules';
 import type { AuthTokenPayload } from '../public/auth-token-payload';
 import { USER_REPOSITORY } from './ports/user.repository.port';
@@ -40,17 +42,21 @@ export class AuthService {
     email: string,
     password: string,
   ): Promise<Result<AuthTokenResult, DomainError>> {
+    const normalizedEmail = normalizeEmail(email);
     const passwordResult = assertPasswordMeetsPolicy(password);
     if (!passwordResult.ok) {
       return passwordResult;
     }
-    const existingUser = await this.userRepository.findByEmail(email);
+    const existingUser = await this.userRepository.findByEmail(normalizedEmail);
     const emailResult = assertEmailAvailable(existingUser);
     if (!emailResult.ok) {
       return emailResult;
     }
     const passwordHash = await this.hashPassword(password);
-    const user = await this.userRepository.save({ email, passwordHash });
+    const user = await this.userRepository.save({
+      email: normalizedEmail,
+      passwordHash,
+    });
     const accessToken = await this.signToken(user.id, user.email);
     return ok({ accessToken });
   }
@@ -62,13 +68,14 @@ export class AuthService {
     email: string,
     password: string,
   ): Promise<Result<AuthTokenResult, DomainError>> {
-    const user = await this.userRepository.findByEmail(email);
+    const normalizedEmail = normalizeEmail(email);
+    const user = await this.userRepository.findByEmail(normalizedEmail);
     if (!user) {
-      return err(new DomainError('Invalid credentials', 401));
+      return err(new DomainError(INVALID_CREDENTIALS_MESSAGE, 401));
     }
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
     if (!isPasswordValid) {
-      return err(new DomainError('Invalid credentials', 401));
+      return err(new DomainError(INVALID_CREDENTIALS_MESSAGE, 401));
     }
     const accessToken = await this.signToken(user.id, user.email);
     return ok({ accessToken });
