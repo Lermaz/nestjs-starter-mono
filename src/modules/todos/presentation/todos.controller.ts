@@ -7,6 +7,7 @@ import {
 } from '@nestjs/swagger';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
 import { Public } from '../../../common/decorators/public.decorator';
+import { unwrapDomainResult } from '../../../common/result';
 import type { AuthTokenPayload } from '../../auth/public';
 import { TodosService } from '../application/todos.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
@@ -43,12 +44,12 @@ export class TodosController {
     @CurrentUser() user: AuthTokenPayload,
     @Body() input: CreateTodoDto,
   ): Promise<TodoResponseDto> {
-    const todo = await this.todosService.createTodo(
+    const result = await this.todosService.createTodo(
       user.userId,
       input.title,
       input.isCompleted ?? false,
     );
-    return toTodoResponseDto(todo);
+    return toTodoResponseDto(unwrapDomainResult(result));
   }
 
   /**
@@ -74,7 +75,7 @@ export class TodosController {
     @CurrentUser() user: AuthTokenPayload,
     @Param('id') id: string,
   ): Promise<TodoResponseDto> {
-    const todo = await this.todosService.findTodoById(user.userId, id);
-    return toTodoResponseDto(todo);
+    const result = await this.todosService.findTodoById(user.userId, id);
+    return toTodoResponseDto(unwrapDomainResult(result));
   }
 }
