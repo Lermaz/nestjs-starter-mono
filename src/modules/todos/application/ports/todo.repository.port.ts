@@ -1,12 +1,20 @@
-import { SaveTodoCommand, Todo } from '../../domain/todo.model';
+import {
+  FindTodosPageQuery,
+  SaveTodoCommand,
+  Todo,
+  TodoPage,
+  UpdateTodoCommand,
+} from '../../domain/todo.model';
 
 /**
  * Contract for todo persistence operations.
  */
 export interface TodoRepositoryPort {
   save(command: SaveTodoCommand): Promise<Todo>;
-  findAllByUserId(userId: string): Promise<Todo[]>;
+  findPageByUserId(query: FindTodosPageQuery): Promise<TodoPage>;
   findByIdForUser(userId: string, id: string): Promise<Todo | null>;
+  update(command: UpdateTodoCommand): Promise<Todo | null>;
+  deleteForUser(userId: string, id: string): Promise<boolean>;
   count(): Promise<number>;
 }
 

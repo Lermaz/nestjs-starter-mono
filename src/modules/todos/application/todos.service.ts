@@ -7,13 +7,20 @@ import { DomainError } from '../../../common/errors/domain.error';
 import { err, ok } from '../../../common/result/result.helpers';
 import type { Result } from '../../../common/result/result';
 import { createTodoProps } from '../domain/todo.factory';
-import { Todo } from '../domain/todo.model';
+import {
+  mergeTodoUpdate,
+  validateUpdateTodoProps,
+} from '../domain/todo-update.factory';
+import { Todo, TodoPage } from '../domain/todo.model';
 import {
   TODO_CREATED_EVENT,
   TodoCreatedEvent,
 } from './events/todo-created.event';
 import { TODO_REPOSITORY } from './ports/todo.repository.port';
 import type { TodoRepositoryPort } from './ports/todo.repository.port';
+
+const DEFAULT_PAGE_LIMIT = 20;
+const MAX_PAGE_LIMIT = 100;
 
 /**
  * Application service for todo business operations.
@@ -50,10 +57,19 @@ export class TodosService {
   }
 
   /**
-   * Returns all todos for a user.
+   * Returns a paginated list of todos for a user.
    */
-  async findAllTodos(userId: string): Promise<Todo[]> {
-    return this.todoRepository.findAllByUserId(userId);
+  async findTodosPage(
+    userId: string,
+    limit = DEFAULT_PAGE_LIMIT,
+    cursor?: string,
+  ): Promise<TodoPage> {
+    const normalizedLimit = Math.min(Math.max(limit, 1), MAX_PAGE_LIMIT);
+    return this.todoRepository.findPageByUserId({
+      userId,
+      limit: normalizedLimit,
+      cursor,
+    });
   }
 
   /**
@@ -68,6 +84,56 @@ export class TodosService {
       return err(new DomainError(`Todo with id "${id}" not found`, 404));
     }
     return ok(todo);
+  }
+
+  /**
+   * Updates a todo for the given user.
+   */
+  async updateTodo(
+    userId: string,
+    id: string,
+    title?: string,
+    isCompleted?: boolean,
+  ): Promise<Result<Todo, DomainError>> {
+    const existingTodo = await this.todoRepository.findByIdForUser(userId, id);
+    if (!existingTodo) {
+      return err(new DomainError(`Todo with id "${id}" not found`, 404));
+    }
+    const updateResult = validateUpdateTodoProps({ title, isCompleted });
+    if (!updateResult.ok) {
+      return updateResult;
+    }
+    const mergedProps = mergeTodoUpdate(
+      {
+        title: existingTodo.title,
+        isCompleted: existingTodo.isCompleted,
+      },
+      updateResult.value,
+    );
+    const updatedTodo = await this.todoRepository.update({
+      userId,
+      todoId: id,
+      title: mergedProps.title,
+      isCompleted: mergedProps.isCompleted,
+    });
+    if (!updatedTodo) {
+      return err(new DomainError(`Todo with id "${id}" not found`, 404));
+    }
+    return ok(updatedTodo);
+  }
+
+  /**
+   * Deletes a todo for the given user.
+   */
+  async deleteTodo(
+    userId: string,
+    id: string,
+  ): Promise<Result<void, DomainError>> {
+    const isDeleted = await this.todoRepository.deleteForUser(userId, id);
+    if (!isDeleted) {
+      return err(new DomainError(`Todo with id "${id}" not found`, 404));
+    }
+    return ok(undefined);
   }
 
   /**
