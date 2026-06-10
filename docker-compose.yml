@@ -3,12 +3,11 @@ services:
     build: .
     ports:
       - '3000:3000'
+    env_file:
+      - .env
     environment:
       PORT: 3000
       NODE_ENV: production
       DATABASE_URL: sqlite://./data/app.db
-      JWT_SECRET: change-me-in-production
-      JWT_EXPIRES_IN: 1d
-      BCRYPT_ROUNDS: 10
     volumes:
       - ./data:/app/data

@@ -29,6 +29,7 @@ Each feature module follows: `domain/` → `application/` → `infrastructure/` 
 | Ops | Consider read replicas / connection pooling when scaling |
 | Application | Use-case split deferred until services exceed ~150 lines |
 | Scale | Monorepo / outbox / CQRS deferred — see [scale-path.md](./scale-path.md) |
+| Auth | Refresh tokens / revocation deferred until multi-client prod |
 
 ---
 
@@ -104,6 +105,22 @@ Each feature module follows: `domain/` → `application/` → `infrastructure/` 
 | 5.2 | Pagination: `GET /todos?cursor=&limit=` | ✅ |
 | 5.3 | Document global error response shape in Swagger | ✅ |
 | 5.4 | Rate-limit sensitive todo endpoints if needed | ✅ |
+
+---
+
+## Phase 7 — Security Hardening
+
+| Step | Action | Status |
+|------|--------|--------|
+| 7.1 | Helmet, CORS, body size limits | ✅ |
+| 7.2 | Disable Swagger in production by default | ✅ |
+| 7.3 | Email normalization, unified credential errors, password cap | ✅ |
+| 7.4 | DB index on `todos.user_id`, FK to `users` | ✅ |
+| 7.5 | `AllExceptionsFilter` for consistent 500 responses | ✅ |
+| 7.6 | Slim auth identity lookup (no `passwordHash` in JWT validation path) | ✅ |
+| 7.7 | Validate `x-request-id` as UUID | ✅ |
+| 7.8 | Hide smoke test routes in production | ✅ |
+| 7.9 | `pnpm audit` in CI | ✅ |
 
 ---
 
