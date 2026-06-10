@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { Observable, tap } from 'rxjs';
-import { AuthTokenPayload } from '../../modules/auth/public/auth-token-payload';
+import type { AuthTokenPayload } from '../../modules/auth/public';
 
 interface StructuredLogEntry {
   readonly requestId?: string;

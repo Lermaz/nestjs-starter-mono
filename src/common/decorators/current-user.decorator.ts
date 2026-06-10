@@ -1,6 +1,6 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { Request } from 'express';
-import { AuthTokenPayload } from '../../modules/auth/public/auth-token-payload';
+import type { AuthTokenPayload } from '../../modules/auth/public';
 
 /**
  * Extracts the authenticated user from the request.
