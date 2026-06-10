@@ -5,6 +5,7 @@ import { User } from '../../domain/user.model';
  */
 export interface UserRepositoryPort {
   findByEmail(email: string): Promise<User | null>;
+  findById(id: string): Promise<User | null>;
   save(email: string, passwordHash: string): Promise<User>;
 }
 

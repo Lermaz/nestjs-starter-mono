@@ -2,17 +2,16 @@
 
 Owns user registration/login, JWT issuance, and the `users` table.
 
-## Public API (cross-module types)
+## Public API (cross-module)
 
-No Nest `exports` — auth is consumed via HTTP and the global `JwtAuthGuard`.
+Exported via `AuthModule.exports`:
 
-Shared types for other modules:
+| Symbol | Method / type | Description |
+|--------|---------------|-------------|
+| `AuthPublicApi` | `validateUser(userId)` | Verifies user exists; used by JWT strategy |
+| `AuthTokenPayload` | type | JWT payload shape (`userId`, `email`) |
 
-| Symbol | Location | Description |
-|--------|----------|-------------|
-| `AuthTokenPayload` | `public/auth-token-payload.ts` | JWT payload shape (`userId`, `email`) |
-
-Import from: `src/modules/auth/public/auth-token-payload.ts`
+Import from: `src/modules/auth/public/`
 
 ## HTTP API
 

@@ -61,13 +61,6 @@ export class AuthService {
     return { accessToken: await this.signToken(user.id, user.email) };
   }
 
-  /**
-   * Validates a JWT payload and returns the authenticated user context.
-   */
-  validateTokenPayload(payload: AuthTokenPayload): AuthTokenPayload {
-    return { userId: payload.userId, email: payload.email };
-  }
-
   private async hashPassword(password: string): Promise<string> {
     const bcryptRounds = this.configService.get<AuthConfig['bcryptRounds']>(
       'auth.bcryptRounds',

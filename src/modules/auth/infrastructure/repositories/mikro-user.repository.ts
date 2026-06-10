@@ -20,6 +20,14 @@ export class MikroUserRepository implements UserRepositoryPort {
     return toDomainUser(entity);
   }
 
+  async findById(id: string): Promise<User | null> {
+    const entity = await this.entityManager.findOne(UserEntity, { id });
+    if (!entity) {
+      return null;
+    }
+    return toDomainUser(entity);
+  }
+
   async save(email: string, passwordHash: string): Promise<User> {
     const entity = this.entityManager.create(
       UserEntity,
