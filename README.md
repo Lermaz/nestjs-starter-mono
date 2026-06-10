@@ -29,6 +29,7 @@
 
 - [Modular NestJS roadmap](docs/modular-nestjs-roadmap.md)
 - [Module ownership](docs/module-ownership.md)
+- [Architecture improvement plan](docs/architecture-improvement-plan.md)
 
 ## Docker
 
