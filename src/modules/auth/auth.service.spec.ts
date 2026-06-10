@@ -104,6 +104,17 @@ describe('AuthService', () => {
         expect(actualResult.error).toBeInstanceOf(DomainError);
       }
     });
+
+    it('should return DomainError when password is too long', async () => {
+      const actualResult = await authService.register(
+        'user@example.com',
+        'a'.repeat(73),
+      );
+      expect(actualResult.ok).toBe(false);
+      if (!actualResult.ok) {
+        expect(actualResult.error).toBeInstanceOf(DomainError);
+      }
+    });
   });
 
   describe('login', () => {

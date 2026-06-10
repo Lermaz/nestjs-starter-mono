@@ -5,6 +5,7 @@ import { User } from './user.model';
 
 export const INVALID_CREDENTIALS_MESSAGE = 'Invalid credentials';
 const MIN_PASSWORD_LENGTH = 8;
+const MAX_PASSWORD_LENGTH = 72;
 
 /**
  * Ensures a password meets registration policy.
@@ -16,6 +17,13 @@ export function assertPasswordMeetsPolicy(
     return err(
       new DomainError(
         `Password must be at least ${MIN_PASSWORD_LENGTH} characters`,
+      ),
+    );
+  }
+  if (password.length > MAX_PASSWORD_LENGTH) {
+    return err(
+      new DomainError(
+        `Password must be at most ${MAX_PASSWORD_LENGTH} characters`,
       ),
     );
   }

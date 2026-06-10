@@ -18,6 +18,14 @@ describe('assertPasswordMeetsPolicy', () => {
       expect(actualResult.error).toBeInstanceOf(DomainError);
     }
   });
+
+  it('should fail when password exceeds bcrypt limit', () => {
+    const actualResult = assertPasswordMeetsPolicy('a'.repeat(73));
+    expect(actualResult.ok).toBe(false);
+    if (!actualResult.ok) {
+      expect(actualResult.error.message).toContain('at most 72');
+    }
+  });
 });
 
 describe('assertEmailAvailable', () => {
