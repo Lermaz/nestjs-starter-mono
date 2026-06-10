@@ -28,7 +28,7 @@ Each feature module follows: `domain/` → `application/` → `infrastructure/` 
 |------|-------|
 | Database | `schema.update()` on boot; no versioned migrations |
 | API | CRUD incomplete (no PATCH/DELETE); no pagination |
-| Application | Services still use primitives in repository ports (Phase 3) |
+| Application | Use-case split deferred until services exceed ~150 lines |
 
 ---
 
@@ -73,14 +73,14 @@ Each feature module follows: `domain/` → `application/` → `infrastructure/` 
 
 **Goal:** Cleaner separation between domain, application, and HTTP.
 
-| Step | Action |
-|------|--------|
-| 3.1 | Single validation layer per field (DTO for HTTP, domain for business rules) |
-| 3.2 | Repository ports accept domain types (`CreateTodoProps`, not primitives) |
-| 3.3 | Application maps `DomainError` to result types instead of throwing HTTP exceptions |
-| 3.4 | Split services into `use-cases/` when a module exceeds ~150 lines |
+| Step | Action | Status |
+|------|--------|--------|
+| 3.1 | Single validation layer per field (DTO for HTTP, domain for business rules) | ✅ |
+| 3.2 | Repository ports accept domain types (`CreateTodoProps`, not primitives) | ✅ |
+| 3.3 | Application returns `Result<T, DomainError>`; presentation unwraps | ✅ |
+| 3.4 | Split services into `use-cases/` when a module exceeds ~150 lines | ⏭️ deferred |
 
-**Rule:** Don't force use-cases on simple CRUD until complexity warrants it.
+**Rule:** Don't force use-cases on simple CRUD until complexity warrants it. Auth and Todos services remain under ~150 lines.
 
 ---
 
