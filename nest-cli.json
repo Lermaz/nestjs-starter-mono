@@ -6,7 +6,7 @@
     "deleteOutDir": true,
     "assets": [
       {
-        "include": "migrations/**/*",
+        "include": "migrations/.snapshot-*.json",
         "watchAssets": true
       }
     ]
