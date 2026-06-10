@@ -17,9 +17,11 @@ Import from: `src/modules/todos/public` (barrel)
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
 | `GET` | `/todos/admin/test` | Public | Smoke test |
-| `POST` | `/todos` | Bearer | Create todo (scoped to authenticated user) |
-| `GET` | `/todos` | Bearer | List current user's todos |
+| `POST` | `/todos` | Bearer | Create todo (30/min rate limit) |
+| `GET` | `/todos` | Bearer | List todos (`?cursor=&limit=`, default 20) |
 | `GET` | `/todos/:id` | Bearer | Get todo by id (owner only) |
+| `PATCH` | `/todos/:id` | Bearer | Update todo (30/min rate limit) |
+| `DELETE` | `/todos/:id` | Bearer | Delete todo (30/min rate limit) |
 
 ## Private layers
 

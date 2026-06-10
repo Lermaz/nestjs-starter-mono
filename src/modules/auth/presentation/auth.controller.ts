@@ -1,6 +1,7 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
+import { ApiStandardErrors } from '../../../common/decorators/api-error-responses.decorator';
 import { Public } from '../../../common/decorators/public.decorator';
 import { unwrapDomainResult } from '../../../common/result';
 import { AuthService } from '../application/auth.service';
@@ -12,6 +13,7 @@ import { RegisterDto } from './dto/register.dto';
  * HTTP controller for authentication operations.
  */
 @ApiTags('auth')
+@ApiStandardErrors()
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
