@@ -10,7 +10,7 @@ Exported via `TodosModule.exports`:
 |--------|--------|-------------|
 | `TodosPublicApi` | `countTodos(): Promise<number>` | Returns total todo count without exposing entities |
 
-Import from: `src/modules/todos/public/todos-public.api.ts`
+Import from: `src/modules/todos/public` (barrel)
 
 ## HTTP API
 

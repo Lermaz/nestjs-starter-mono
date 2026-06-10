@@ -2,9 +2,9 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { AuthConfig } from '../../../core/config/auth.config';
-import { AuthPublicApi } from '../public/auth-public.api';
-import { AuthTokenPayload } from '../public/auth-token-payload';
+import { AuthConfig } from '../../../../core/config/auth.config';
+import { AuthPublicApi } from '../../public/auth-public.api';
+import type { AuthTokenPayload } from '../../public/auth-token-payload';
 
 /**
  * Passport strategy for validating JWT access tokens.

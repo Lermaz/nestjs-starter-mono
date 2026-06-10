@@ -26,13 +26,9 @@ Each feature module follows: `domain/` → `application/` → `infrastructure/` 
 
 | Area | Issue |
 |------|-------|
-| Security | Todos not scoped to authenticated user |
-| Auth | JWT validation does not verify user still exists |
-| Errors | `DomainError` not mapped globally (500 risk) |
-| Boundaries | Auth exports `AuthService`; guard registered in AuthModule |
-| Events | `TodoCreatedListener` lives in CommonModule |
 | Database | `schema.update()` on boot; no versioned migrations |
 | API | CRUD incomplete (no PATCH/DELETE); no pagination |
+| Application | Services still use primitives in repository ports (Phase 3) |
 
 ---
 
@@ -61,13 +57,13 @@ Each feature module follows: `domain/` → `application/` → `infrastructure/` 
 
 **Goal:** Consistent public APIs and stronger dep-cruiser rules.
 
-| Step | Action |
-|------|--------|
-| 2.1 | Auth: export only `AuthPublicApi` + types (stop exporting `AuthService`) |
-| 2.2 | Extend `.dependency-cruiser.cjs` for `common/` → `modules/*/public/` only |
-| 2.3 | Add dep-cruiser rule: `application/` must not import Nest HTTP exceptions |
-| 2.4 | Standardize `public/index.ts` barrel per feature module |
-| 2.5 | Move `JwtStrategy` to `infrastructure/auth/` |
+| Step | Action | Status |
+|------|--------|--------|
+| 2.1 | Auth: export only `AuthPublicApi` + types (stop exporting `AuthService`) | ✅ |
+| 2.2 | Extend `.dependency-cruiser.cjs` for `common/` → `modules/*/public/` only | ✅ |
+| 2.3 | Add dep-cruiser rule: `application/` must not import `@nestjs/common` | ✅ |
+| 2.4 | Standardize `public/index.ts` barrel per feature module | ✅ |
+| 2.5 | Move `JwtStrategy` to `infrastructure/auth/` | ✅ |
 
 **Acceptance criteria:** `pnpm arch:check` catches deliberate bad imports.
 

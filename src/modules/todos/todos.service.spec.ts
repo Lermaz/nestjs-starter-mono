@@ -1,5 +1,5 @@
-import { NotFoundException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { DomainError } from '../../common/errors/domain.error';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Todo } from './domain/todo.model';
 import {
@@ -80,11 +80,11 @@ describe('TodosService', () => {
       expect(actualResult.id).toBe('todo-1');
     });
 
-    it('should throw NotFoundException when todo is missing', async () => {
+    it('should throw DomainError when todo is missing', async () => {
       mockTodoRepository.findByIdForUser.mockResolvedValue(null);
       await expect(
         todosService.findTodoById('user-1', 'missing'),
-      ).rejects.toThrow(NotFoundException);
+      ).rejects.toThrow(DomainError);
     });
   });
 

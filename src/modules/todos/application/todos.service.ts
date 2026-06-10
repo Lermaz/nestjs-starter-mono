@@ -1,5 +1,9 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import {
+  Inject,
+  Injectable,
+} from '../../../common/nest/application.decorators';
+import { DomainError } from '../../../common/errors/domain.error';
 import { createTodoProps } from '../domain/todo.factory';
 import { Todo } from '../domain/todo.model';
 import {
@@ -54,7 +58,7 @@ export class TodosService {
   async findTodoById(userId: string, id: string): Promise<Todo> {
     const todo = await this.todoRepository.findByIdForUser(userId, id);
     if (!todo) {
-      throw new NotFoundException(`Todo with id "${id}" not found`);
+      throw new DomainError(`Todo with id "${id}" not found`, 404);
     }
     return todo;
   }

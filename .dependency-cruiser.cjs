@@ -30,6 +30,24 @@ module.exports = {
       to: { path: '^src/modules/$1/infrastructure/entities/' },
     },
     {
+      name: 'common-cross-module-public-only',
+      severity: 'error',
+      comment: 'Common may only import feature modules via public/ barrels',
+      from: { path: '^src/common/' },
+      to: {
+        path: '^src/modules/([^/]+)/',
+        pathNot: '^src/modules/[^/]+/public/',
+      },
+    },
+    {
+      name: 'app-no-nest-common',
+      severity: 'error',
+      comment:
+        'Application layer must not import @nestjs/common; use DomainError and application.decorators',
+      from: { path: '^src/modules/([^/]+)/application/' },
+      to: { path: '^node_modules/@nestjs/common' },
+    },
+    {
       name: 'cross-module-public-only',
       severity: 'error',
       comment:

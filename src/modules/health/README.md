@@ -4,7 +4,15 @@ Owns liveness/readiness HTTP endpoints and operational smoke checks.
 
 ## Public API (cross-module)
 
-No Nest `exports`. Readiness checks database connectivity by calling `TodosPublicApi` from TodosModule.
+No Nest `exports` yet. Shared types for consumers:
+
+| Symbol | Location | Description |
+|--------|----------|-------------|
+| `ReadinessResponse` | `public/readiness-response.ts` | Readiness endpoint shape |
+
+Import from: `src/modules/health/public` (barrel)
+
+Readiness checks database connectivity by calling `TodosPublicApi` from TodosModule.
 
 ## HTTP API
 

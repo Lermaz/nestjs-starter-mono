@@ -4,14 +4,14 @@ Owns user registration/login, JWT issuance, and the `users` table.
 
 ## Public API (cross-module)
 
-Exported via `AuthModule.exports`:
+Exported via `AuthModule.exports` (public API only — `AuthService` is internal):
 
 | Symbol | Method / type | Description |
 |--------|---------------|-------------|
 | `AuthPublicApi` | `validateUser(userId)` | Verifies user exists; used by JWT strategy |
 | `AuthTokenPayload` | type | JWT payload shape (`userId`, `email`) |
 
-Import from: `src/modules/auth/public/`
+Import from: `src/modules/auth/public` (barrel)
 
 ## HTTP API
 
@@ -28,4 +28,4 @@ Rate-limited to 5 requests per minute.
 - `application/` — `AuthService`, repository port
 - `infrastructure/` — `UserEntity`, MikroORM repository, mappers
 - `presentation/` — controller, DTOs
-- `strategies/` — Passport JWT strategy
+- `infrastructure/auth/` — Passport JWT strategy

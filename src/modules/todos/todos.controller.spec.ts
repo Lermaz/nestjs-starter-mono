@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthTokenPayload } from '../auth/public/auth-token-payload';
+import type { AuthTokenPayload } from '../auth/public';
 import { Todo } from './domain/todo.model';
 import { TodosService } from './application/todos.service';
 import { TodosController } from './presentation/todos.controller';

@@ -7,7 +7,7 @@ import {
 } from '@nestjs/swagger';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
 import { Public } from '../../../common/decorators/public.decorator';
-import type { AuthTokenPayload } from '../../auth/public/auth-token-payload';
+import type { AuthTokenPayload } from '../../auth/public';
 import { TodosService } from '../application/todos.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { TodoResponseDto } from './dto/todo-response.dto';
