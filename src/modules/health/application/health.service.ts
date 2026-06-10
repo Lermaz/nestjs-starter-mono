@@ -1,5 +1,9 @@
-import { Injectable } from '../../../common/nest/application.decorators';
-import { TodosPublicApi } from '../../todos/public';
+import {
+  Inject,
+  Injectable,
+} from '../../../common/nest/application.decorators';
+import { DATABASE_HEALTH } from '../../../core/database/ports/database-health.port';
+import type { DatabaseHealthPort } from '../../../core/database/ports/database-health.port';
 import type { ReadinessResponse } from '../public/readiness-response';
 
 /**
@@ -7,7 +11,10 @@ import type { ReadinessResponse } from '../public/readiness-response';
  */
 @Injectable()
 export class HealthService {
-  constructor(private readonly todosPublicApi: TodosPublicApi) {}
+  constructor(
+    @Inject(DATABASE_HEALTH)
+    private readonly databaseHealth: DatabaseHealthPort,
+  ) {}
 
   /**
    * Returns a hello world message for the root health endpoint.
@@ -24,10 +31,13 @@ export class HealthService {
   }
 
   /**
-   * Returns readiness status including database connectivity via Todos.
+   * Returns readiness status including database connectivity.
    */
   async getReadiness(): Promise<ReadinessResponse> {
-    const todosCount = await this.todosPublicApi.countTodos();
-    return { status: 'ok', todosCount };
+    const isDatabaseHealthy = await this.databaseHealth.checkConnectivity();
+    return {
+      status: isDatabaseHealthy ? 'ok' : 'error',
+      database: isDatabaseHealthy ? 'ok' : 'error',
+    };
   }
 }

@@ -12,7 +12,7 @@ No Nest `exports` yet. Shared types for consumers:
 
 Import from: `src/modules/health/public` (barrel)
 
-Readiness checks database connectivity by calling `TodosPublicApi` from TodosModule.
+Readiness checks database connectivity via `DatabaseHealthPort` from Core `DatabaseModule`.
 
 ## HTTP API
 
@@ -20,11 +20,11 @@ Readiness checks database connectivity by calling `TodosPublicApi` from TodosMod
 |--------|------|------|-------------|
 | `GET` | `/` | Public | Root health check |
 | `GET` | `/health/test` | Public | Smoke test |
-| `GET` | `/health/ready` | Public | Readiness with DB check via `TodosPublicApi.countTodos()` |
+| `GET` | `/health/ready` | Public | Readiness with database connectivity check |
 
 ## Dependencies
 
-- Imports `TodosModule` for `TodosPublicApi` (cross-module via `public/` facade only)
+- Uses global `DatabaseModule` (`DATABASE_HEALTH` port) for readiness checks
 
 ## Private layers
 

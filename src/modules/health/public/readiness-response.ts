@@ -3,5 +3,5 @@
  */
 export interface ReadinessResponse {
   readonly status: string;
-  readonly todosCount: number;
+  readonly database: 'ok' | 'error';
 }
